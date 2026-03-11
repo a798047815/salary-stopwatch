@@ -1,0 +1,42 @@
+<!--pages/stats/stats.wxml-->
+<view class="container">
+  <!-- 今日收入 -->
+  <view class="stat-card today">
+    <view class="stat-label">今日收入</view>
+    <view class="stat-value">{{salaryData.currency || '¥'}}{{todayEarnings}}</view>
+    <view class="stat-date">{{today}}</view>
+  </view>
+
+  <!-- 本周收入 -->
+  <view class="stat-card week">
+    <view class="stat-label">本周收入</view>
+    <view class="stat-value">{{salaryData.currency || '¥'}}{{weekEarnings}}</view>
+  </view>
+
+  <!-- 本月收入 -->
+  <view class="stat-card month">
+    <view class="stat-label">本月收入</view>
+    <view class="stat-value">{{salaryData.currency || '¥'}}{{monthEarnings}}</view>
+  </view>
+
+  <!-- 连续打卡 -->
+  <view class="stat-card streak">
+    <view class="stat-label">🔥 连续上班</view>
+    <view class="stat-value">{{streakDays}} 天</view>
+  </view>
+
+  <!-- 成就列表 -->
+  <view class="section">
+    <view class="section-title">🏆 成就</view>
+    <view class="achievements">
+      <view class="achievement-item {{item.unlocked ? '' : 'locked'}}" wx:for="{{achievements}}" wx:key="name">
+        <text class="achievement-icon">{{item.icon}}</text>
+        <view class="achievement-info">
+          <text class="achievement-name">{{item.name}}</text>
+          <text class="achievement-desc">{{item.desc}}</text>
+        </view>
+        <text class="achievement-check" wx:if="{{item.unlocked}}">✓</text>
+      </view>
+    </view>
+  </view>
+</view>

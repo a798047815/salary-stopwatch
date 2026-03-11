@@ -1,0 +1,54 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 顶部工作时间 -->
+  <view class="work-time-card">
+    <text class="work-time-icon">⏰</text>
+    <text class="work-time-label">上班时间</text>
+    <text class="work-time-value">{{salaryData.workStartTime}} - {{salaryData.workEndTime}}</text>
+  </view>
+
+  <!-- 核心收入显示 -->
+  <view class="earnings-card">
+    <view class="earnings-label">今日收入</view>
+    <view class="earnings-value">
+      <text class="currency">{{salaryData.currency || '¥'}}</text>
+      <text class="amount {{isWorking ? 'pulse' : ''}}">{{currentEarnings}}</text>
+    </view>
+    <view class="work-timer">
+      <text class="timer-icon">⏱</text>
+      <text class="timer-value">{{workTime}}</text>
+      <text class="timer-label">已工作</text>
+    </view>
+  </view>
+
+  <!-- 进度条 -->
+  <view class="progress-card">
+    <view class="progress-info">
+      <text class="remaining-time">{{remainingTime ? '距下班 ' + remainingTime : '已下班'}}</text>
+      <text class="expected-earnings" wx:if="{{expectedEarnings}}">预计赚 {{salaryData.currency || '¥'}}{{expectedEarnings}}</text>
+    </view>
+    <view class="progress-bar-bg">
+      <view class="progress-bar-fill" style="width: {{progressPercent}}%"></view>
+    </view>
+    <text class="progress-text">{{progressPercent}}%</text>
+  </view>
+
+  <!-- 里程碑 -->
+  <view class="milestone-card">
+    <view class="milestone-title">
+      <text class="milestone-icon">{{nextMilestone.icon}}</text>
+      <text>下一个目标</text>
+    </view>
+    <view class="milestone-progress">
+      <text class="milestone-amount">{{salaryData.currency || '¥'}}{{nextMilestone.amount}}</text>
+      <text class="milestone-name">{{nextMilestone.name}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="toggle-btn {{isWorking ? 'stop' : 'start'}}" bindtap="toggleTimer">
+      {{isWorking ? '⏸ 暂停' : '▶️ 开始赚钱'}}
+    </button>
+  </view>
+</view>

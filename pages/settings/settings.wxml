@@ -1,0 +1,63 @@
+<!--pages/settings/settings.wxml-->
+<view class="container">
+  <view class="section">
+    <view class="section-title">💰 工资设置</view>
+    <view class="setting-item">
+      <text class="setting-label">每日工资</text>
+      <view class="setting-input-wrap">
+        <text class="currency-symbol">{{salaryData.currency || '¥'}}</text>
+        <input class="setting-input" type="digit" value="{{salaryData.dailySalary}}" data-field="dailySalary" bindinput="onInput" />
+      </view>
+    </view>
+    <view class="setting-item">
+      <text class="setting-label">货币符号</text>
+      <picker bindchange="onCurrencyChange" value="{{currencyIndex}}" range="{{currencies}}">
+        <view class="picker-value">{{salaryData.currency || '¥'}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">⏰ 上下班时间</view>
+    <view class="setting-item">
+      <text class="setting-label">上班时间</text>
+      <picker mode="time" value="{{salaryData.workStartTime}}" data-field="workStartTime" bindchange="onTimeChange">
+        <view class="picker-value">{{salaryData.workStartTime}}</view>
+      </picker>
+    </view>
+    <view class="setting-item">
+      <text class="setting-label">下班时间</text>
+      <picker mode="time" value="{{salaryData.workEndTime}}" data-field="workEndTime" bindchange="onTimeChange">
+        <view class="picker-value">{{salaryData.workEndTime}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">🍚 午休设置</view>
+    <view class="setting-item">
+      <text class="setting-label">午休开始时间</text>
+      <picker mode="time" value="{{salaryData.breakStartTime}}" data-field="breakStartTime" bindchange="onTimeChange">
+        <view class="picker-value">{{salaryData.breakStartTime}}</view>
+      </picker>
+    </view>
+    <view class="setting-item">
+      <text class="setting-label">午休时长（分钟）</text>
+      <picker mode="selector" value="{{breakDurationIndex}}" range="{{breakDurations}}" bindchange="onBreakDurationChange">
+        <view class="picker-value">{{salaryData.breakDuration}} 分钟</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">🎨 外观</view>
+    <view class="setting-item">
+      <text class="setting-label">深色模式</text>
+      <switch checked="{{salaryData.darkMode !== false}}" data-field="darkMode" bindchange="onSwitch" color="#4CAF50"/>
+    </view>
+  </view>
+
+  <button class="save-btn" bindtap="saveData">保存设置</button>
+  
+  <view class="version">赚钱秒表 v1.0.0</view>
+</view>

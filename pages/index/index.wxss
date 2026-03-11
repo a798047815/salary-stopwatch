@@ -1,0 +1,221 @@
+/* pages/index/index.wxss */
+page {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+}
+
+/* 工作时间卡片 */
+.work-time-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx;
+  backdrop-filter: blur(10rpx);
+}
+
+.work-time-icon {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.work-time-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-right: 20rpx;
+}
+
+.work-time-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+/* 收入卡片 */
+.earnings-card {
+  background: linear-gradient(145deg, #2d4a3e 0%, #1a332a 100%);
+  border-radius: 30rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  margin-bottom: 30rpx;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
+  border: 1rpx solid rgba(76, 175, 80, 0.3);
+}
+
+.earnings-label {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 20rpx;
+}
+
+.earnings-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.currency {
+  font-size: 40rpx;
+  color: #4CAF50;
+  margin-right: 10rpx;
+}
+
+.amount {
+  font-size: 96rpx;
+  font-weight: bold;
+  color: #4CAF50;
+  text-shadow: 0 0 30rpx rgba(76, 175, 80, 0.5);
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.pulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.work-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.timer-icon {
+  font-size: 28rpx;
+  margin-right: 10rpx;
+}
+
+.timer-value {
+  font-size: 36rpx;
+  font-family: 'Courier New', monospace;
+  margin-right: 15rpx;
+}
+
+.timer-label {
+  font-size: 24rpx;
+}
+
+/* 进度卡片 */
+.progress-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15rpx;
+}
+
+.remaining-time {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.expected-earnings {
+  font-size: 26rpx;
+  color: #FFC107;
+}
+
+.progress-bar-bg {
+  height: 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 8rpx;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  display: block;
+  text-align: right;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 10rpx;
+}
+
+/* 里程碑卡片 */
+.milestone-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.milestone-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 26rpx;
+}
+
+.milestone-icon {
+  font-size: 36rpx;
+  margin-right: 15rpx;
+}
+
+.milestone-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.milestone-amount {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #FFC107;
+}
+
+.milestone-name {
+  font-size: 28rpx;
+  color: #FFC107;
+  background: rgba(255, 193, 7, 0.2);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  margin-top: 40rpx;
+}
+
+.toggle-btn {
+  width: 100%;
+  padding: 30rpx;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  border: none;
+}
+
+.toggle-btn.start {
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  color: white;
+  box-shadow: 0 10rpx 30rpx rgba(76, 175, 80, 0.4);
+}
+
+.toggle-btn.stop {
+  background: linear-gradient(90deg, #f44336, #e91e63);
+  color: white;
+  box-shadow: 0 10rpx 30rpx rgba(244, 67, 54, 0.4);
+}

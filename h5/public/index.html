@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>赚钱秒表</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部工作时间 -->
+    <div class="work-time-card">
+      <span class="work-time-icon">⏰</span>
+      <span class="work-time-label">上班时间</span>
+      <span class="work-time-value" id="workTimeValue">09:00 - 18:00</span>
+    </div>
+
+    <!-- 核心收入显示 -->
+    <div class="earnings-card">
+      <div class="earnings-label">今日收入</div>
+      <div class="earnings-value">
+        <span class="currency" id="currencySymbol">¥</span>
+        <span class="amount pulse" id="currentEarnings">0.00</span>
+      </div>
+      <div class="work-timer">
+        <span class="timer-icon">⏱</span>
+        <span class="timer-value" id="workTime">00:00:00</span>
+        <span class="timer-label">已工作</span>
+      </div>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-card">
+      <div class="progress-info">
+        <span class="remaining-time" id="remainingTime">距下班 8小时</span>
+        <span class="expected-earnings" id="expectedEarnings">预计赚 ¥300</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+      </div>
+      <span class="progress-text" id="progressText">0%</span>
+    </div>
+
+    <!-- 里程碑 -->
+    <div class="milestone-card">
+      <div class="milestone-title">
+        <span class="milestone-icon" id="milestoneIcon">☕</span>
+        <span>下一个目标</span>
+      </div>
+      <div class="milestone-progress">
+        <span class="milestone-amount" id="milestoneAmount">¥30</span>
+        <span class="milestone-name" id="milestoneName">咖啡自由</span>
+      </div>
+    </div>
+
+    <!-- 目标卡片 -->
+    <div class="goal-card">
+      <div class="goal-title">
+        <span class="goal-icon">🎯</span>
+        <span>攒钱目标</span>
+      </div>
+      <div class="goal-progress" id="goalProgress">
+        <div class="goal-info">
+          <span class="goal-name" id="goalName">买房 (¥1,000,000)</span>
+          <span class="goal-percent" id="goalPercent">0.01%</span>
+        </div>
+        <div class="goal-bar-bg">
+          <div class="goal-bar-fill" id="goalBar" style="width: 0.01%"></div>
+        </div>
+        <span class="goal-time" id="goalTime">还需要 10 年 8 个月</span>
+      </div>
+    </div>
+
+    <!-- 工作推荐 -->
+    <div class="jobs-card">
+      <div class="jobs-title">
+        <span class="jobs-icon">💼</span>
+        <span>高薪工作推荐</span>
+        <button class="refresh-btn" onclick="loadJobs()">刷新</button>
+      </div>
+      <div class="jobs-list" id="jobsList">
+        <!-- 工作列表会动态加载 -->
+        <div class="job-item">
+          <div class="job-title">加载中...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+      <button class="toggle-btn start" id="toggleBtn" onclick="toggleTimer()">▶️ 开始赚钱</button>
+      <button class="settings-btn" onclick="openSettings()">⚙️ 设置</button>
+      <button class="goal-btn" onclick="openGoalSettings()">🎯 目标</button>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div class="modal" id="settingsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>设置</h2>
+          <span class="close-btn" onclick="closeSettings()">×</span>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>每日工资</label>
+            <div class="input-group">
+              <span>¥</span>
+              <input type="number" id="dailySalary" value="300" min="0">
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>上班时间</label>
+            <input type="time" id="workStartTime" value="09:00">
+          </div>
+
+          <div class="setting-group">
+            <label>下班时间</label>
+            <input type="time" id="workEndTime" value="18:00">
+          </div>
+
+          <div class="setting-group">
+            <label>午休开始</label>
+            <input type="time" id="breakStartTime" value="12:00">
+          </div>
+
+          <div class="setting-group">
+            <label>午休时长（分钟）</label>
+            <input type="number" id="breakDuration" value="60" min="0" max="120">
+          </div>
+
+          <div class="setting-group">
+            <label>货币符号</label>
+            <select id="currency">
+              <option value="¥" selected>¥ 人民币</option>
+              <option value="$">$ 美元</option>
+              <option value="€">€ 欧元</option>
+              <option value="£">£ 英镑</option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <label>所在城市</label>
+            <input type="text" id="city" placeholder="例如：北京" value="北京">
+          </div>
+          <div class="setting-group">
+            <label>从事行业</label>
+            <select id="industry">
+              <option value="it">互联网/IT</option>
+              <option value="finance">金融</option>
+              <option value="education">教育</option>
+              <option value="medical">医疗</option>
+              <option value="design">设计</option>
+              <option value="marketing">市场</option>
+              <option value="others">其他</option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <label>聚合数据API Key（可选）</label>
+            <input type="text" id="jobsApiKey" placeholder="输入招聘API Key" value="">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="save-btn" onclick="saveSettings()">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 目标设置弹窗 -->
+    <div class="modal" id="goalModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>攒钱目标设置</h2>
+          <span class="close-btn" onclick="closeGoalSettings()">×</span>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>目标名称</label>
+            <input type="text" id="goalNameInput" placeholder="例如：买房、买车、旅游" value="买房">
+          </div>
+          <div class="setting-group">
+            <label>目标金额</label>
+            <div class="input-group">
+              <span id="goalCurrency">¥</span>
+              <input type="number" id="goalAmount" value="1000000" min="0">
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>已攒金额</label>
+            <div class="input-group">
+              <span id="goalCurrencySaved">¥</span>
+              <input type="number" id="goalSaved" value="1000" min="0">
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>每月攒钱金额</label>
+            <div class="input-group">
+              <span id="goalCurrencyMonth">¥</span>
+              <input type="number" id="goalMonthlySave" value="5000" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="save-btn" onclick="saveGoalSettings()">保存目标</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
