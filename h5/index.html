@@ -208,6 +208,43 @@
     </div>
   </div>
 
+  <!-- 底部导航 -->
+  <div class="bottom-nav">
+    <button class="nav-item active" data-page="home">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">首页</span>
+    </button>
+    <button class="nav-item" data-page="jobs">
+      <span class="nav-icon">💼</span>
+      <span class="nav-label">岗位推荐</span>
+    </button>
+    <button class="nav-item" data-page="game">
+      <span class="nav-icon">🎮</span>
+      <span class="nav-label">摸鱼游戏</span>
+    </button>
+  </div>
+
+  <!-- 游戏页面 -->
+  <div class="page" id="gamePage" style="display: none;">
+    <div class="game-header">
+      <h2>🎮 打地鼠摸鱼版</h2>
+      <button class="back-btn" onclick="switchPage('home')">← 返回</button>
+    </div>
+    <iframe id="gameFrame" src="game/index.html" frameborder="0" style="width: 100%; height: calc(100vh - 120px); border: none;"></iframe>
+  </div>
+
+  <!-- 岗位推荐页面 -->
+  <div class="page" id="jobsPage" style="display: none;">
+    <div class="game-header">
+      <h2>💼 高薪岗位推荐</h2>
+      <button class="back-btn" onclick="switchPage('home')">← 返回</button>
+      <button class="refresh-btn" onclick="loadJobs()">刷新</button>
+    </div>
+    <div class="jobs-container" id="jobsContainer">
+      <!-- 岗位列表会动态加载 -->
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
