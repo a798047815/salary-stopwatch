@@ -42,10 +42,26 @@ function init() {
   loadConfig()
   loadGoalConfig()
   calculateEarningsPerSecond()
-  updateUI()
+  updateEarnings() // 立即计算并更新一次收入
   updateGoalUI()
   loadJobs()
-  startTimer()
+  
+  // 只有在工作时间内才自动启动计时器
+  const now = new Date()
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+  const startMinutes = config.workStartTime.split(':').map(Number).reduce((h, m) => h * 60 + m, 0)
+  const endMinutes = config.workEndTime.split(':').map(Number).reduce((h, m) => h * 60 + m, 0)
+  const breakStartMinTotal = config.breakStartTime.split(':').map(Number).reduce((h, m) => h * 60 + m, 0)
+  const breakEndMinTotal = breakStartMinTotal + config.breakDuration
+  
+  const inWorkTime = currentMinutes >= startMinutes && currentMinutes < endMinutes
+  const inBreakTime = currentMinutes >= breakStartMinTotal && currentMinutes < breakEndMinTotal
+  
+  if (inWorkTime && !inBreakTime) {
+    startTimer()
+  } else {
+    stopTimer() // 非工作时间默认暂停
+  }
 }
 
 // 加载配置
@@ -121,7 +137,7 @@ function startTimer() {
   
   state.timer = setInterval(() => {
     updateEarnings()
-  }, 1000)
+  }, 100) // 每100毫秒更新一次，让数字跳动更流畅
 }
 
 // 停止计时器
@@ -173,11 +189,11 @@ function updateEarnings() {
   // 增加收入
   if (inWorkTime && !inBreakTime && state.isRunning) {
     if (state.lastUpdateTime) {
-      const secondsPassed = Math.floor((currentTime - state.lastUpdateTime) / 1000)
+      const secondsPassed = (currentTime - state.lastUpdateTime) / 1000 // 精确到毫秒
       state.currentEarnings += state.earningsPerSecond * secondsPassed
     } else {
       // 计算今天已经工作的时间
-      let secondsWorked = (currentMinutes - startMinutes) * 60 + currentSec
+      let secondsWorked = (currentMinutes - startMinutes) * 60 + currentSec + currentSec / 1000
       if (currentMinutes > breakStartMinTotal) {
         secondsWorked -= config.breakDuration * 60
       }
