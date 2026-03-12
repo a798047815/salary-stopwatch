@@ -205,11 +205,27 @@
           <button class="save-btn" onclick="saveGoalSettings()">保存目标</button>
         </div>
       </div>
-    </div>
+  <!-- 悬浮游戏入口按钮 -->
+  <button class="floating-game-btn" onclick="switchPage('game')" style="
+    position: fixed !important;
+    bottom: 80px !important;
+    right: 20px !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: #4CAF50 !important;
+    color: white !important;
+    border: none !important;
+    font-size: 24px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    z-index: 9999999 !important;
+    cursor: pointer !important;
+  ">🎮</button>
+
   </div>
 
   <!-- 底部导航 -->
-  <div class="bottom-nav">
+  <div class="bottom-nav" style="z-index: 99999 !important;">
     <button class="nav-item active" data-page="home">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">首页</span>
@@ -225,16 +241,16 @@
   </div>
 
   <!-- 游戏页面 -->
-  <div class="page" id="gamePage" style="display: none;">
+  <div class="page" id="game" style="display: none;">
     <div class="game-header">
-      <h2>🎮 打地鼠摸鱼版</h2>
+      <h2>🎮 摸鱼小游戏合集</h2>
       <button class="back-btn" onclick="switchPage('home')">← 返回</button>
     </div>
     <iframe id="gameFrame" src="game/index.html" frameborder="0" style="width: 100%; height: calc(100vh - 120px); border: none;"></iframe>
   </div>
 
   <!-- 岗位推荐页面 -->
-  <div class="page" id="jobsPage" style="display: none;">
+  <div class="page" id="jobs" style="display: none;">
     <div class="game-header">
       <h2>💼 高薪岗位推荐</h2>
       <button class="back-btn" onclick="switchPage('home')">← 返回</button>

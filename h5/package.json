@@ -1,12 +1,7 @@
 {
-  "name": "h5",
+  "name": "salary-stopwatch",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "build": "mkdir -p dist && cp -r ./* dist/ 2>/dev/null || true"
+  }
 }
