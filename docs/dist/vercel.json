@@ -1,0 +1,9 @@
+{
+  "buildCommand": "echo '不需要构建，直接部署静态文件'",
+  "outputDirectory": ".",
+  "installCommand": "echo '不需要安装依赖'",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 摸鱼小游戏合集</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .game-header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .game-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0f0;
+    }
+
+    .game-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .game-btn {
+      background: #333;
+      color: #fff;
+      border: 2px solid #0f0;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .game-btn.active {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .game-btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+
+    #gameCanvas {
+      border: 2px solid #0f0;
+      background: #000;
+      max-width: 100%;
+    }
+
+    .game-info {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #0f0;
+    }
+
+    .controls {
+      margin-top: 15px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .start-btn {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .start-btn:hover {
+      background: #0c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-header">
+    <h1 class="game-title">🎮 雅达利经典游戏</h1>
+    <button class="game-btn" onclick="window.parent.switchPage('home')">← 返回</button>
+  </div>
+
+  <div class="game-selector">
+    <button class="game-btn active" onclick="switchGame('pong')">🏓 Pong 打网球</button>
+    <button class="game-btn" onclick="switchGame('breakout')">🧱 Breakout 打砖块</button>
+  </div>
+
+  <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+  <div class="game-info">
+    <div id="score">得分: 0</div>
+    <div id="status">准备开始</div>
+  </div>
+
+  <div class="controls">
+    <div id="controlText">操作提示：电脑用键盘，手机触摸屏幕即可操作</div>
+    <button class="start-btn" onclick="startGame()">开始游戏</button>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
