@@ -505,93 +505,135 @@ window.onclick = function(event) {
 // 初始化
 // 页面切换功能
 function switchPage(pageName) {
+  console.log('切换到页面:', pageName)
+  
   // 隐藏所有页面
-  document.querySelectorAll('.page').forEach(page => {
+  const pages = document.querySelectorAll('.page')
+  console.log('找到页面数量:', pages.length)
+  pages.forEach(page => {
     page.style.display = 'none'
   })
   
   // 显示目标页面
   const homeContainer = document.querySelector('.container')
+  if (!homeContainer) {
+    console.error('找不到home容器')
+    return
+  }
+
+  const gamePage = document.getElementById('game')
+  const jobsPage = document.getElementById('jobs')
+  
+  console.log('gamePage存在:', !!gamePage)
+  console.log('jobsPage存在:', !!jobsPage)
+  
   if (pageName === 'home') {
     homeContainer.style.display = 'block'
-    document.getElementById('gamePage').style.display = 'none'
-    document.getElementById('jobsPage').style.display = 'none'
+    if (gamePage) gamePage.style.display = 'none'
+    if (jobsPage) jobsPage.style.display = 'none'
   } else if (pageName === 'game') {
     homeContainer.style.display = 'none'
-    document.getElementById('gamePage').style.display = 'block'
-    document.getElementById('jobsPage').style.display = 'none'
+    if (gamePage) {
+      gamePage.style.display = 'block'
+      // 强制刷新iframe，确保游戏加载
+      const gameFrame = document.getElementById('gameFrame')
+      if (gameFrame) {
+        gameFrame.src = gameFrame.src
+      }
+    }
+    if (jobsPage) jobsPage.style.display = 'none'
   } else if (pageName === 'jobs') {
     homeContainer.style.display = 'none'
-    document.getElementById('gamePage').style.display = 'none'
-    document.getElementById('jobsPage').style.display = 'block'
-    loadJobs() // 加载岗位数据
+    if (gamePage) gamePage.style.display = 'none'
+    if (jobsPage) {
+      jobsPage.style.display = 'block'
+      loadJobs() // 加载岗位数据
+    }
   }
   
   // 更新导航激活状态
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.remove('active')
   })
-  document.querySelector(`[data-page="${pageName}"]`).classList.add('active')
+  const activeBtn = document.querySelector(`[data-page="${pageName}"]`)
+  if (activeBtn) activeBtn.classList.add('active')
 }
 
 // 加载岗位数据
-async function loadJobs() {
+function loadJobs() {
   const container = document.getElementById('jobsContainer')
+  if (!container) {
+    console.error('找不到jobsContainer元素')
+    return
+  }
+  
   container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">🔍 正在加载岗位...</div>'
   
   try {
-    // 使用Adzuna API获取真实招聘数据（免费API）
-    const response = await fetch('https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=2d2773e4&app_key=74f9e8e8e8e8e8e8e8e8e8e8e8e8e8e8&results_per_page=10&what=javascript&where=london')
-    
-    // 备用静态测试数据（如果API失败）
-    const mockJobs = [
+    // 静态岗位数据，直接显示
+    const jobs = [
       {
         title: "前端开发工程师",
         company: "字节跳动",
         salary: "25K-35K·14薪",
-        location: "北京·海淀区"
+        location: "北京·海淀区",
+        desc: "负责字节系产品前端开发，React/Vue技术栈"
       },
       {
         title: "全栈开发工程师",
         company: "阿里巴巴",
         salary: "30K-45K·16薪",
-        location: "杭州·余杭区"
+        location: "杭州·余杭区",
+        desc: "负责阿里云产品全栈开发，Node.js+React技术栈"
       },
       {
         title: "React高级工程师",
         company: "腾讯",
         salary: "28K-40K·15薪",
-        location: "深圳·南山区"
+        location: "深圳·南山区",
+        desc: "负责微信生态产品开发，React+TypeScript技术栈"
       },
       {
         title: "Node.js开发工程师",
         company: "美团",
         salary: "22K-32K·14薪",
-        location: "北京·朝阳区"
+        location: "北京·朝阳区",
+        desc: "负责美团外卖后端服务开发，Node.js+MySQL技术栈"
       },
       {
         title: "移动端开发工程师",
         company: "拼多多",
         salary: "35K-50K·18薪",
-        location: "上海·长宁区"
+        location: "上海·长宁区",
+        desc: "负责拼多多APP移动端开发，Flutter+原生技术栈"
+      },
+      {
+        title: "数据分析师",
+        company: "百度",
+        salary: "20K-30K·14薪",
+        location: "北京·海淀区",
+        desc: "负责百度搜索数据统计分析，Python+SQL技术栈"
       }
     ]
     
     // 渲染岗位列表
     container.innerHTML = ''
-    mockJobs.forEach(job => {
+    jobs.forEach(job => {
       const jobCard = document.createElement('div')
       jobCard.className = 'job-card'
+      jobCard.style = "background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);"
       jobCard.innerHTML = `
-        <div class="job-title">${job.title}</div>
-        <div class="job-company">${job.company}</div>
-        <div class="job-salary">${job.salary}</div>
-        <div class="job-location">${job.location}</div>
+        <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 8px;">${job.title}</div>
+        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">${job.company}</div>
+        <div style="font-size: 16px; color: #ff6b6b; font-weight: bold; margin-bottom: 8px;">${job.salary}</div>
+        <div style="font-size: 12px; color: #999; background: #f0f0f0; padding: 3px 8px; border-radius: 12px; display: inline-block; margin-bottom: 8px;">${job.location}</div>
+        <div style="font-size: 12px; color: #666;">${job.desc}</div>
       `
       container.appendChild(jobCard)
     })
     
   } catch (error) {
+    console.error('加载岗位失败:', error)
     container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">❌ 加载失败，请刷新重试</div>'
   }
 }

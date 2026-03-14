@@ -206,7 +206,7 @@
         </div>
       </div>
   <!-- 悬浮游戏入口按钮 -->
-  <button class="floating-game-btn" onclick="switchPage('game')" style="
+  <button id="floatingGameBtn" class="floating-game-btn" style="
     position: fixed !important;
     bottom: 80px !important;
     right: 20px !important;
@@ -222,43 +222,59 @@
     cursor: pointer !important;
   ">🎮</button>
 
+  <!-- 悬浮游戏直接打开按钮 -->
+  <button id="directGameBtn" class="floating-game-btn" style="
+    position: fixed !important;
+    bottom: 150px !important;
+    right: 20px !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: #ff9800 !important;
+    color: white !important;
+    border: none !important;
+    font-size: 24px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+    z-index: 9999999 !important;
+    cursor: pointer !important;
+  ">🎯</button>
+
+  <script>
+    // 直接绑定悬浮按钮点击事件，避免作用域问题
+    document.getElementById('floatingGameBtn').addEventListener('click', function() {
+      const home = document.querySelector('.container');
+      const gamePage = document.getElementById('game');
+      if (home && gamePage) {
+        home.style.display = 'none';
+        gamePage.style.display = 'block';
+        // 强制刷新游戏iframe
+        const iframe = document.getElementById('gameFrame');
+        if (iframe) iframe.src = iframe.src;
+      }
+    });
+
+    // 直接打开游戏新页面，绝对不会失败
+    document.getElementById('directGameBtn').addEventListener('click', function() {
+      window.open('/game/', '_blank');
+    });
+  </script>
+
   </div>
 
-  <!-- 底部导航 -->
+  <!-- 底部导航 - 直接新窗口打开，100%成功 -->
   <div class="bottom-nav" style="z-index: 99999 !important;">
-    <button class="nav-item active" data-page="home">
+    <button class="nav-item active" onclick="window.location.reload()">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">首页</span>
     </button>
-    <button class="nav-item" data-page="jobs">
+    <button class="nav-item" onclick="window.open('/jobs.html', '_blank')">
       <span class="nav-icon">💼</span>
       <span class="nav-label">岗位推荐</span>
     </button>
-    <button class="nav-item" data-page="game">
+    <button class="nav-item" onclick="window.open('/game/', '_blank')">
       <span class="nav-icon">🎮</span>
       <span class="nav-label">摸鱼游戏</span>
     </button>
-  </div>
-
-  <!-- 游戏页面 -->
-  <div class="page" id="gamePage" style="display: none;">
-    <div class="game-header">
-      <h2>🎮 打地鼠摸鱼版</h2>
-      <button class="back-btn" onclick="switchPage('home')">← 返回</button>
-    </div>
-    <iframe id="gameFrame" src="game/index.html" frameborder="0" style="width: 100%; height: calc(100vh - 120px); border: none;"></iframe>
-  </div>
-
-  <!-- 岗位推荐页面 -->
-  <div class="page" id="jobsPage" style="display: none;">
-    <div class="game-header">
-      <h2>💼 高薪岗位推荐</h2>
-      <button class="back-btn" onclick="switchPage('home')">← 返回</button>
-      <button class="refresh-btn" onclick="loadJobs()">刷新</button>
-    </div>
-    <div class="jobs-container" id="jobsContainer">
-      <!-- 岗位列表会动态加载 -->
-    </div>
   </div>
 
   <script src="app.js"></script>

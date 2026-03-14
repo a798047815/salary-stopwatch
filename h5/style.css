@@ -503,18 +503,40 @@ body {
   cursor: pointer;
 }
 
-/* 底部导航 */
+/* 底部导航 - 最简单的样式，绝对不会冲突 */
 .bottom-nav {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  display: flex !important;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 999999;
+  height: 70px;
+  padding: 10px 0;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  border: none;
   background: white !important;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.3) !important;
-  z-index: 999999 !important;
-  height: 70px !important;
-  padding: 10px 0 !important;
+  color: #999;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  color: #4CAF50;
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
 }
 
 .nav-item {
