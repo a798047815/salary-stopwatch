@@ -111,7 +111,7 @@
 <body>
   <div class="game-header">
     <h1 class="game-title">🎮 雅达利经典游戏</h1>
-    <button class="game-btn" onclick="window.parent.switchPage('home')">← 返回</button>
+    <button class="game-btn" onclick="try { window.parent.switchPage('home') } catch(e) { window.location.href = '/' }">← 返回</button>
   </div>
 
   <div class="game-selector">

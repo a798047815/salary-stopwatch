@@ -51,23 +51,20 @@ canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   const touch = e.touches[0];
   const rect = canvas.getBoundingClientRect();
-  const x = touch.clientX - rect.left;
-  const y = touch.clientY - rect.top;
+  // 计算缩放比例，适配canvas在手机上的缩放显示
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (touch.clientX - rect.left) * scaleX;
+  const y = (touch.clientY - rect.top) * scaleY;
   
-  // Pong触摸控制：左半屏控制左边板子，右半屏控制右边板子
+  // Pong触摸控制：触摸位置就是对应侧板子的位置
   if (currentGame === 'pong') {
     if (x < canvas.width / 2) {
-      if (y < canvas.height / 2) {
-        touchUp = true;
-      } else {
-        touchDown = true;
-      }
+      // 左半屏控制左边板子，直接跳转到触摸位置
+      leftPaddle.y = y - leftPaddle.height / 2;
     } else {
-      if (y < canvas.height / 2) {
-        touchUp = true;
-      } else {
-        touchDown = true;
-      }
+      // 右半屏控制右边板子，直接跳转到触摸位置
+      rightPaddle.y = y - rightPaddle.height / 2;
     }
   } 
   // Breakout触摸控制：点击位置就是板子位置
@@ -82,9 +79,22 @@ canvas.addEventListener('touchmove', (e) => {
   e.preventDefault();
   const touch = e.touches[0];
   const rect = canvas.getBoundingClientRect();
-  const x = touch.clientX - rect.left;
+  const scaleX = canvas.width / rect.width;
+  const x = (touch.clientX - rect.left) * scaleX;
   
-  if (currentGame === 'breakout') {
+  if (currentGame === 'pong') {
+    const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+    if (x < canvas.width / 2) {
+      leftPaddle.y = y - leftPaddle.height / 2;
+    } else {
+      rightPaddle.y = y - rightPaddle.height / 2;
+    }
+    // 边界限制
+    if (leftPaddle.y < 0) leftPaddle.y = 0;
+    if (leftPaddle.y > canvas.height - leftPaddle.height) leftPaddle.y = canvas.height - leftPaddle.height;
+    if (rightPaddle.y < 0) rightPaddle.y = 0;
+    if (rightPaddle.y > canvas.height - rightPaddle.height) rightPaddle.y = canvas.height - rightPaddle.height;
+  } else if (currentGame === 'breakout') {
     paddle.x = x - paddle.width / 2;
     if (paddle.x < 0) paddle.x = 0;
     if (paddle.x > canvas.width - paddle.width) paddle.x = canvas.width - paddle.width;

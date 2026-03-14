@@ -42,7 +42,6 @@ function init() {
   loadConfig()
   loadGoalConfig()
   calculateEarningsPerSecond()
-  updateEarnings() // 立即计算并更新一次收入
   updateGoalUI()
   loadJobs()
   
@@ -62,6 +61,9 @@ function init() {
   } else {
     stopTimer() // 非工作时间默认暂停
   }
+  
+  // 启动计时器后再更新收入，确保已工作时长被正确计算
+  updateEarnings() // 立即计算并更新一次收入
 }
 
 // 加载配置
