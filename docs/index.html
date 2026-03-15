@@ -253,9 +253,12 @@
       }
     });
 
-    // 直接打开游戏新页面，绝对不会失败
+    // 直接打开游戏在当前页面
     document.getElementById('directGameBtn').addEventListener('click', function() {
-      window.open('./game/', '_blank');
+      document.querySelector('.container').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+      const iframe = document.getElementById('gameFrame');
+      if (iframe) iframe.src = iframe.src;
     });
   </script>
 
@@ -271,7 +274,7 @@
       <span class="nav-icon">💼</span>
       <span class="nav-label">岗位推荐</span>
     </button>
-    <button class="nav-item" onclick="window.open('./game/', '_blank')">
+    <button class="nav-item" onclick="document.querySelector('.container').style.display = 'none'; document.getElementById('game').style.display = 'block'; const iframe = document.getElementById('gameFrame'); if (iframe) iframe.src = iframe.src;">
       <span class="nav-icon">🎮</span>
       <span class="nav-label">摸鱼游戏</span>
     </button>
