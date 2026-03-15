@@ -5,8 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>赚钱秒表</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* 全局最高优先级样式，确保页面不会被覆盖 */
+    #game, #jobs {
+      display: none !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: #fff !important;
+      z-index: 999999999999999 !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    #game iframe, #jobs iframe {
+      width: 100% !important;
+      height: calc(100vh - 50px) !important;
+      border: none !important;
+      display: block !important;
+      visibility: visible !important;
+      background: #fff !important;
+    }
+    .page-header {
+      padding: 10px;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 50px;
+      box-sizing: border-box;
+    }
+    .back-btn {
+      padding: 8px 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <!-- 首页内容 -->
   <div class="container">
     <!-- 顶部工作时间 -->
     <div class="work-time-card">
@@ -242,21 +284,16 @@
   <script>
     // 直接绑定悬浮按钮点击事件，避免作用域问题
     document.getElementById('floatingGameBtn').addEventListener('click', function() {
-      const home = document.querySelector('.container');
-      const gamePage = document.getElementById('game');
-      if (home && gamePage) {
-        home.style.display = 'none';
-        gamePage.style.display = 'block';
-        // 强制刷新游戏iframe
-        const iframe = document.getElementById('gameFrame');
-        if (iframe) iframe.src = iframe.src;
-      }
+      document.querySelector('.container').style.setProperty('display', 'none', 'important');
+      document.getElementById('game').style.setProperty('display', 'block', 'important');
+      const iframe = document.getElementById('gameFrame');
+      if (iframe) iframe.src = iframe.src;
     });
 
     // 直接打开游戏在当前页面
     document.getElementById('directGameBtn').addEventListener('click', function() {
-      document.querySelector('.container').style.display = 'none';
-      document.getElementById('game').style.display = 'block';
+      document.querySelector('.container').style.setProperty('display', 'none', 'important');
+      document.getElementById('game').style.setProperty('display', 'block', 'important');
       const iframe = document.getElementById('gameFrame');
       if (iframe) iframe.src = iframe.src;
     });
@@ -264,38 +301,38 @@
 
   </div>
 
-  <!-- 游戏页面结构 -->
-  <div id="game" style="display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; background: #fff; z-index: 9999999 !important; overflow: hidden;">
-    <div style="padding: 10px; background: #f5f5f5; display: flex; justify-content: space-between; align-items: center; height: 50px; box-sizing: border-box;">
-      <button onclick="document.getElementById('game').style.display = 'none'; document.querySelector('.container').style.display = 'block';" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">← 返回首页</button>
+  <!-- 游戏页面结构 （在container外面，绝对不会被隐藏） -->
+  <div id="game">
+    <div class="page-header">
+      <button class="back-btn" onclick="document.getElementById('game').style.setProperty('display', 'none', 'important'); document.querySelector('.container').style.setProperty('display', 'block', 'important');">← 返回首页</button>
       <span>摸鱼游戏</span>
     </div>
-    <iframe id="gameFrame" src="./game/index.html" style="width: 100% !important; height: calc(100vh - 50px) !important; border: none; display: block !important; z-index: 99999999 !important; position: relative; visibility: visible !important; background: #fff;"></iframe>
+    <iframe id="gameFrame" src="./game/index.html"></iframe>
+  </div>
+
+  <!-- 岗位推荐页面结构 （在container外面，绝对不会被隐藏） -->
+  <div id="jobs">
+    <div class="page-header">
+      <button class="back-btn" onclick="document.getElementById('jobs').style.setProperty('display', 'none', 'important'); document.querySelector('.container').style.setProperty('display', 'block', 'important');">← 返回首页</button>
+      <span>高薪岗位推荐</span>
+    </div>
+    <iframe id="jobsFrame" src="./jobs.html"></iframe>
   </div>
 
   <!-- 底部导航 - 全部内联展示，不跳转 -->
   <div class="bottom-nav" style="z-index: 99999 !important;">
-    <button class="nav-item active" onclick="document.querySelector('.container').style.display = 'block'; document.getElementById('game').style.display = 'none'; document.getElementById('jobs').style.display = 'none';">
+    <button class="nav-item active" onclick="document.querySelector('.container').style.setProperty('display', 'block', 'important'); document.getElementById('game').style.setProperty('display', 'none', 'important'); document.getElementById('jobs').style.setProperty('display', 'none', 'important');">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">首页</span>
     </button>
-    <button class="nav-item" onclick="document.querySelector('.container').style.display = 'none'; document.getElementById('jobs').style.display = 'block'; if (document.getElementById('jobsFrame')) document.getElementById('jobsFrame').src = document.getElementById('jobsFrame').src;">
+    <button class="nav-item" onclick="document.querySelector('.container').style.setProperty('display', 'none', 'important'); document.getElementById('jobs').style.setProperty('display', 'block', 'important'); const iframe = document.getElementById('jobsFrame'); if (iframe) iframe.src = iframe.src;">
       <span class="nav-icon">💼</span>
       <span class="nav-label">岗位推荐</span>
     </button>
-    <button class="nav-item" onclick="document.querySelector('.container').style.display = 'none'; document.getElementById('game').style.display = 'block'; if (document.getElementById('gameFrame')) document.getElementById('gameFrame').src = document.getElementById('gameFrame').src;">
+    <button class="nav-item" onclick="document.querySelector('.container').style.setProperty('display', 'none', 'important'); document.getElementById('game').style.setProperty('display', 'block', 'important'); const iframe = document.getElementById('gameFrame'); if (iframe) iframe.src = iframe.src;">
       <span class="nav-icon">🎮</span>
       <span class="nav-label">摸鱼游戏</span>
     </button>
-  </div>
-
-  <!-- 岗位推荐页面结构 -->
-  <div id="jobs" style="display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; background: #fff; z-index: 9999999 !important; overflow: hidden;">
-    <div style="padding: 10px; background: #f5f5f5; display: flex; justify-content: space-between; align-items: center; height: 50px; box-sizing: border-box;">
-      <button onclick="document.getElementById('jobs').style.display = 'none'; document.querySelector('.container').style.display = 'block';" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">← 返回首页</button>
-      <span>高薪岗位推荐</span>
-    </div>
-    <iframe id="jobsFrame" src="./jobs.html" style="width: 100% !important; height: calc(100vh - 50px) !important; border: none; display: block !important; z-index: 99999999 !important; position: relative; visibility: visible !important; background: #fff;"></iframe>
   </div>
 
   <script src="app.js"></script>
