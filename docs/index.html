@@ -264,6 +264,15 @@
 
   </div>
 
+  <!-- 游戏页面结构 -->
+  <div id="game" style="display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; background: #fff; z-index: 999999;">
+    <div style="padding: 10px; background: #f5f5f5; display: flex; justify-content: space-between; align-items: center;">
+      <button onclick="document.getElementById('game').style.display = 'none'; document.querySelector('.container').style.display = 'block';" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">← 返回首页</button>
+      <span>摸鱼游戏</span>
+    </div>
+    <iframe id="gameFrame" src="./game/index.html" style="width: 100%; height: calc(100% - 50px); border: none;"></iframe>
+  </div>
+
   <!-- 底部导航 - 直接新窗口打开，100%成功 -->
   <div class="bottom-nav" style="z-index: 99999 !important;">
     <button class="nav-item active" onclick="window.location.reload()">
