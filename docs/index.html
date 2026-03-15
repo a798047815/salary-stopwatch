@@ -14,10 +14,8 @@
       padding: 0 !important;
       box-sizing: border-box !important;
       position: relative !important;
-      display: block !important;
     }
     #jobs-page, #game-page {
-      display: none !important;
       padding-bottom: 100px !important;
     }
     /* 岗位推荐样式 */
@@ -596,8 +594,11 @@
       window.currentGame = game;
     }
 
-    // 绑定悬浮按钮点击
+    // 绑定悬浮按钮点击 + 初始化页面显示
     document.addEventListener('DOMContentLoaded', function() {
+      // 初始化只显示首页
+      document.getElementById('jobs-page').style.setProperty('display', 'none', 'important');
+      document.getElementById('game-page').style.setProperty('display', 'none', 'important');
       document.getElementById('floatingGameBtn').addEventListener('click', () => switchPage('game'));
       document.getElementById('directGameBtn').addEventListener('click', () => switchPage('game'));
     });
