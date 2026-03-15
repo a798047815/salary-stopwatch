@@ -259,56 +259,23 @@
 
   </div>
 
-  <!-- 底部导航 - 单页切换，不跳转 -->
+  <!-- 底部导航 - 直接相对路径跳转，无404 -->
   <div class="bottom-nav" style="z-index: 99999 !important;">
-    <button class="nav-item active" onclick="switchPage('home')">
+    <button class="nav-item active" onclick="location.href='./'">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">首页</span>
     </button>
-    <button class="nav-item" onclick="switchPage('jobs')">
+    <button class="nav-item" onclick="location.href='./jobs.html'">
       <span class="nav-icon">💼</span>
       <span class="nav-label">岗位推荐</span>
     </button>
-    <button class="nav-item" onclick="switchPage('game')">
+    <button class="nav-item" onclick="location.href='./game/'">
       <span class="nav-icon">🎮</span>
       <span class="nav-label">摸鱼游戏</span>
     </button>
   </div>
 
-  <!-- 页面容器 -->
-  <div id="homePage" class="page-container">
-    <!-- 原来的首页所有内容都在这里 -->
-  </div>
 
-  <div id="jobsPage" class="page-container" style="display: none;">
-    <iframe src="./jobs.html" width="100%" height="calc(100vh - 80px)" frameborder="0"></iframe>
-  </div>
-
-  <div id="gamePage" class="page-container" style="display: none;">
-    <iframe src="./game/" width="100%" height="calc(100vh - 80px)" frameborder="0"></iframe>
-  </div>
-
-  <script>
-    // 页面切换逻辑
-    function switchPage(page) {
-      // 隐藏所有页面
-      document.querySelectorAll('.page-container').forEach(el => el.style.display = 'none');
-      // 取消所有导航选中状态
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      // 显示对应页面
-      document.getElementById(page + 'Page').style.display = 'block';
-      // 选中对应导航
-      event.currentTarget.classList.add('active');
-    }
-
-    // 把原来的首页内容移到homePage容器里
-    document.addEventListener('DOMContentLoaded', function() {
-      const homeContent = document.querySelector('.container').parentNode.innerHTML;
-      document.getElementById('homePage').innerHTML = homeContent;
-      // 移除原来的重复内容
-      document.querySelector('.container').remove();
-    });
-  </script>
 
   <script src="app.js"></script>
 </body>
