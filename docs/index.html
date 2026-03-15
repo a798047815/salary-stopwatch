@@ -6,50 +6,189 @@
   <title>赚钱秒表</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 全局最高优先级样式，确保页面不会被覆盖 */
-    #game, #jobs {
-      display: none !important;
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      background: #fff !important;
-      z-index: 999999999999999 !important;
-      overflow: hidden !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    #game iframe, #jobs iframe {
-      width: 100% !important;
-      height: calc(100vh - 50px) !important;
-      border: none !important;
-      display: block !important;
-      visibility: visible !important;
-      background: #fff !important;
-    }
-    .page-header {
-      padding: 10px;
+    /* 岗位推荐样式 */
+    .jobs-page {
+      display: none;
+      width: 100vw;
+      min-height: 100vh;
       background: #f5f5f5;
+      padding: 20px;
+      box-sizing: border-box;
+      padding-bottom: 100px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .jobs-page .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .jobs-page .header h1 {
+      font-size: 20px;
+      color: #333;
+    }
+    .jobs-page .back-btn {
+      background: #f0f0f0;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #333;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .jobs-page .job-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .jobs-page .job-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .jobs-page .job-company {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .jobs-page .job-salary {
+      font-size: 16px;
+      color: #ff6b6b;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .jobs-page .job-location {
+      font-size: 12px;
+      color: #999;
+      background: #f0f0f0;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .jobs-page .job-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* 游戏页面样式 */
+    .game-page {
+      display: none;
+      width: 100vw;
+      min-height: 100vh;
+      background: #000;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      box-sizing: border-box;
+      padding-bottom: 100px;
+    }
+    .game-page .game-header {
+      width: 100%;
+      max-width: 800px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 50px;
-      box-sizing: border-box;
+      margin-bottom: 20px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .back-btn {
+    .game-page .game-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0f0;
+    }
+    .game-page .game-btn {
+      background: #333;
+      color: #fff;
+      border: 2px solid #0f0;
       padding: 8px 16px;
-      background: #4CAF50;
-      color: white;
-      border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .game-page .game-btn.active {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+    }
+    .game-page .game-btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+    .game-page .game-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .game-page #gameCanvas {
+      border: 2px solid #0f0;
+      background: #000;
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    .game-page .game-info {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #0f0;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .game-page .controls {
+      margin-top: 15px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .game-page .start-btn {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    .game-page .start-btn:hover {
+      background: #0c0;
+    }
+
+    /* 导航激活样式 */
+    .nav-item.active {
+      background: #4CAF50;
+      color: white;
     }
   </style>
 </head>
 <body>
   <!-- 首页内容 -->
-  <div class="container">
+  <div class="container home-page">
     <!-- 顶部工作时间 -->
     <div class="work-time-card">
       <span class="work-time-icon">⏰</span>
@@ -281,59 +420,151 @@
     cursor: pointer !important;
   ">🎯</button>
 
-  <script>
-    // 直接绑定悬浮按钮点击事件，避免作用域问题
-    document.getElementById('floatingGameBtn').addEventListener('click', function() {
-      document.querySelector('.container').style.setProperty('display', 'none', 'important');
-      document.getElementById('game').style.setProperty('display', 'block', 'important');
-      const iframe = document.getElementById('gameFrame');
-      if (iframe) iframe.src = iframe.src;
-    });
-
-    // 直接打开游戏在当前页面
-    document.getElementById('directGameBtn').addEventListener('click', function() {
-      document.querySelector('.container').style.setProperty('display', 'none', 'important');
-      document.getElementById('game').style.setProperty('display', 'block', 'important');
-      const iframe = document.getElementById('gameFrame');
-      if (iframe) iframe.src = iframe.src;
-    });
-  </script>
-
   </div>
 
-  <!-- 游戏页面结构 （在container外面，绝对不会被隐藏） -->
-  <div id="game">
-    <div class="page-header">
-      <button class="back-btn" onclick="document.getElementById('game').style.setProperty('display', 'none', 'important'); document.querySelector('.container').style.setProperty('display', 'block', 'important');">← 返回首页</button>
-      <span>摸鱼游戏</span>
+  <!-- 岗位推荐页面 直接内嵌，不用iframe -->
+  <div class="jobs-page">
+    <div class="header">
+      <h1>💼 高薪岗位推荐</h1>
+      <button class="back-btn" onclick="switchPage('home')">← 返回首页</button>
     </div>
-    <iframe id="gameFrame" src="./game/index.html"></iframe>
-  </div>
 
-  <!-- 岗位推荐页面结构 （在container外面，绝对不会被隐藏） -->
-  <div id="jobs">
-    <div class="page-header">
-      <button class="back-btn" onclick="document.getElementById('jobs').style.setProperty('display', 'none', 'important'); document.querySelector('.container').style.setProperty('display', 'block', 'important');">← 返回首页</button>
-      <span>高薪岗位推荐</span>
+    <div class="job-card">
+      <div class="job-title">前端开发工程师</div>
+      <div class="job-company">字节跳动</div>
+      <div class="job-salary">25K-35K·14薪</div>
+      <div class="job-location">北京·海淀区</div>
+      <div class="job-desc">负责字节系产品前端开发，React/Vue技术栈，要求3年以上前端开发经验，熟悉移动端适配。</div>
     </div>
-    <iframe id="jobsFrame" src="./jobs.html"></iframe>
+
+    <div class="job-card">
+      <div class="job-title">全栈开发工程师</div>
+      <div class="job-company">阿里巴巴</div>
+      <div class="job-salary">30K-45K·16薪</div>
+      <div class="job-location">杭州·余杭区</div>
+      <div class="job-desc">负责阿里云产品全栈开发，Node.js+React技术栈，要求熟悉微服务架构，有高并发系统经验。</div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-title">React高级工程师</div>
+      <div class="job-company">腾讯</div>
+      <div class="job-salary">28K-40K·15薪</div>
+      <div class="job-location">深圳·南山区</div>
+      <div class="job-desc">负责微信生态产品开发，React+TypeScript技术栈，要求熟悉微信小程序开发，有大型项目经验。</div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-title">Node.js开发工程师</div>
+      <div class="job-company">美团</div>
+      <div class="job-salary">22K-32K·14薪</div>
+      <div class="job-location">北京·朝阳区</div>
+      <div class="job-desc">负责美团外卖后端服务开发，Node.js+MySQL技术栈，要求熟悉分布式系统，有性能优化经验。</div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-title">移动端开发工程师</div>
+      <div class="job-company">拼多多</div>
+      <div class="job-salary">35K-50K·18薪</div>
+      <div class="job-location">上海·长宁区</div>
+      <div class="job-desc">负责拼多多APP移动端开发，Flutter+原生技术栈，要求熟悉跨平台开发，有性能优化经验。</div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-title">数据分析师</div>
+      <div class="job-company">百度</div>
+      <div class="job-salary">20K-30K·14薪</div>
+      <div class="job-location">北京·海淀区</div>
+      <div class="job-desc">负责百度搜索数据统计分析，Python+SQL技术栈，要求熟悉大数据分析工具，有机器学习经验优先。</div>
+    </div>
   </div>
 
-  <!-- 底部导航 - 全部内联展示，不跳转 -->
+  <!-- 游戏页面 直接内嵌，不用iframe -->
+  <div class="game-page">
+    <div class="game-header">
+      <h1 class="game-title">🎮 雅达利经典游戏</h1>
+      <button class="game-btn" onclick="switchPage('home')">← 返回</button>
+    </div>
+
+    <div class="game-selector">
+      <button class="game-btn active" onclick="switchGame('pong')">🏓 Pong 打网球</button>
+      <button class="game-btn" onclick="switchGame('breakout')">🧱 Breakout 打砖块</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+    <div class="game-info">
+      <div id="score">得分: 0</div>
+      <div id="status">准备开始</div>
+    </div>
+
+    <div class="controls">
+      <div id="controlText">操作提示：电脑用键盘，手机触摸屏幕即可操作</div>
+      <button class="start-btn" onclick="startGame()">开始游戏</button>
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
   <div class="bottom-nav" style="z-index: 99999 !important;">
-    <button class="nav-item active" onclick="document.querySelector('.container').style.setProperty('display', 'block', 'important'); document.getElementById('game').style.setProperty('display', 'none', 'important'); document.getElementById('jobs').style.setProperty('display', 'none', 'important');">
+    <button class="nav-item active" onclick="switchPage('home')">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">首页</span>
     </button>
-    <button class="nav-item" onclick="document.querySelector('.container').style.setProperty('display', 'none', 'important'); document.getElementById('jobs').style.setProperty('display', 'block', 'important'); const iframe = document.getElementById('jobsFrame'); if (iframe) iframe.src = iframe.src;">
+    <button class="nav-item" onclick="switchPage('jobs')">
       <span class="nav-icon">💼</span>
       <span class="nav-label">岗位推荐</span>
     </button>
-    <button class="nav-item" onclick="document.querySelector('.container').style.setProperty('display', 'none', 'important'); document.getElementById('game').style.setProperty('display', 'block', 'important'); const iframe = document.getElementById('gameFrame'); if (iframe) iframe.src = iframe.src;">
+    <button class="nav-item" onclick="switchPage('game')">
       <span class="nav-icon">🎮</span>
       <span class="nav-label">摸鱼游戏</span>
     </button>
   </div>
+
+  <script>
+    // 全局页面切换函数，100%可靠
+    function switchPage(page) {
+      // 隐藏所有页面
+      document.querySelector('.home-page').style.display = 'none';
+      document.querySelector('.jobs-page').style.display = 'none';
+      document.querySelector('.game-page').style.display = 'none';
+      
+      // 取消所有导航激活
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      
+      // 显示对应页面
+      if (page === 'home') {
+        document.querySelector('.home-page').style.display = 'block';
+        document.querySelectorAll('.nav-item')[0].classList.add('active');
+      } else if (page === 'jobs') {
+        document.querySelector('.jobs-page').style.display = 'block';
+        document.querySelectorAll('.nav-item')[1].classList.add('active');
+      } else if (page === 'game') {
+        document.querySelector('.game-page').style.display = 'block';
+        document.querySelectorAll('.nav-item')[2].classList.add('active');
+        // 加载游戏脚本
+        if (!window.gameLoaded) {
+          const script = document.createElement('script');
+          script.src = './game/game.js';
+          document.body.appendChild(script);
+          window.gameLoaded = true;
+        }
+      }
+    }
+
+    // 绑定悬浮按钮点击
+    document.getElementById('floatingGameBtn').addEventListener('click', function() {
+      switchPage('game');
+    });
+    document.getElementById('directGameBtn').addEventListener('click', function() {
+      switchPage('game');
+    });
+
+    // 游戏切换函数
+    window.switchGame = function(game) {
+      document.querySelectorAll('.game-selector .game-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      if (window.currentGame) window.currentGame = game;
+    }
+  </script>
 
   <script src="app.js"></script>
 </body>
