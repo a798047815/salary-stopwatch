@@ -242,20 +242,18 @@
   <script>
     // 直接绑定悬浮按钮点击事件，避免作用域问题
     document.getElementById('floatingGameBtn').addEventListener('click', function() {
-      const home = document.querySelector('.container');
-      const gamePage = document.getElementById('game');
-      if (home && gamePage) {
-        home.style.display = 'none';
-        gamePage.style.display = 'block';
-        // 强制刷新游戏iframe
-        const iframe = document.getElementById('gameFrame');
-        if (iframe) iframe.src = iframe.src;
-      }
+      switchPage('game');
+      // 自动选中游戏导航
+      document.querySelectorAll('.nav-item')[2].classList.add('active');
+      document.querySelectorAll('.nav-item')[0].classList.remove('active');
     });
 
     // 直接打开游戏新页面，绝对不会失败
     document.getElementById('directGameBtn').addEventListener('click', function() {
-      window.open('./game/', '_blank');
+      switchPage('game');
+      // 自动选中游戏导航
+      document.querySelectorAll('.nav-item')[2].classList.add('active');
+      document.querySelectorAll('.nav-item')[0].classList.remove('active');
     });
   </script>
 
