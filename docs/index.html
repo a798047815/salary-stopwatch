@@ -283,7 +283,7 @@
       <span class="nav-icon">💼</span>
       <span class="nav-label">岗位推荐</span>
     </button>
-    <button class="nav-item" onclick="document.querySelector('.container').style.display = 'none'; document.getElementById('game').style.display = 'block'; const iframe = document.getElementById('gameFrame'); if (iframe) iframe.src = iframe.src;">
+    <button class="nav-item" onclick="document.querySelector('.container').style.display = 'none'; document.getElementById('game').style.display = 'block'; if (document.getElementById('gameFrame')) document.getElementById('gameFrame').src = document.getElementById('gameFrame').src;">
       <span class="nav-icon">🎮</span>
       <span class="nav-label">摸鱼游戏</span>
     </button>
