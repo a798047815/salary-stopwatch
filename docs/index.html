@@ -6,18 +6,26 @@
   <title>赚钱秒表</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 岗位推荐样式 */
-    .jobs-page {
-      display: none;
-      width: 100vw;
-      min-height: 100vh;
-      background: #f5f5f5;
-      padding: 20px;
-      box-sizing: border-box;
-      padding-bottom: 100px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* 所有页面全局样式，绝对不会被覆盖 */
+    #home-page, #jobs-page, #game-page {
+      width: 100vw !important;
+      min-height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      display: block !important;
     }
-    .jobs-page .header {
+    #jobs-page, #game-page {
+      display: none !important;
+      padding-bottom: 100px !important;
+    }
+    /* 岗位推荐样式 */
+    #jobs-page {
+      background: #f5f5f5 !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
+    #jobs-page .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -30,11 +38,11 @@
       margin-left: auto;
       margin-right: auto;
     }
-    .jobs-page .header h1 {
+    #jobs-page .header h1 {
       font-size: 20px;
       color: #333;
     }
-    .jobs-page .back-btn {
+    #jobs-page .back-btn {
       background: #f0f0f0;
       border: none;
       padding: 8px 16px;
@@ -43,7 +51,7 @@
       cursor: pointer;
       font-size: 14px;
     }
-    .jobs-page .job-card {
+    #jobs-page .job-card {
       background: white;
       border-radius: 12px;
       padding: 15px;
@@ -53,24 +61,24 @@
       margin-left: auto;
       margin-right: auto;
     }
-    .jobs-page .job-title {
+    #jobs-page .job-title {
       font-size: 16px;
       font-weight: bold;
       color: #333;
       margin-bottom: 8px;
     }
-    .jobs-page .job-company {
+    #jobs-page .job-company {
       font-size: 14px;
       color: #666;
       margin-bottom: 8px;
     }
-    .jobs-page .job-salary {
+    #jobs-page .job-salary {
       font-size: 16px;
       color: #ff6b6b;
       font-weight: bold;
       margin-bottom: 8px;
     }
-    .jobs-page .job-location {
+    #jobs-page .job-location {
       font-size: 12px;
       color: #999;
       background: #f0f0f0;
@@ -79,25 +87,19 @@
       display: inline-block;
       margin-bottom: 8px;
     }
-    .jobs-page .job-desc {
+    #jobs-page .job-desc {
       font-size: 12px;
       color: #666;
       line-height: 1.5;
     }
 
     /* 游戏页面样式 */
-    .game-page {
-      display: none;
-      width: 100vw;
-      min-height: 100vh;
-      background: #000;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      padding: 20px;
-      box-sizing: border-box;
-      padding-bottom: 100px;
+    #game-page {
+      background: #000 !important;
+      color: #fff !important;
+      font-family: 'Courier New', monospace !important;
     }
-    .game-page .game-header {
+    #game-page .game-header {
       width: 100%;
       max-width: 800px;
       display: flex;
@@ -106,13 +108,14 @@
       margin-bottom: 20px;
       margin-left: auto;
       margin-right: auto;
+      padding: 20px 20px 0 20px;
     }
-    .game-page .game-title {
+    #game-page .game-title {
       font-size: 24px;
       font-weight: bold;
       color: #0f0;
     }
-    .game-page .game-btn {
+    #game-page .game-btn {
       background: #333;
       color: #fff;
       border: 2px solid #0f0;
@@ -123,29 +126,29 @@
       font-size: 14px;
       transition: all 0.2s;
     }
-    .game-page .game-btn.active {
+    #game-page .game-btn.active {
       background: #0f0;
       color: #000;
       font-weight: bold;
     }
-    .game-page .game-btn:hover {
+    #game-page .game-btn:hover {
       background: #0f0;
       color: #000;
     }
-    .game-page .game-selector {
+    #game-page .game-selector {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
       justify-content: center;
     }
-    .game-page #gameCanvas {
+    #game-page #gameCanvas {
       border: 2px solid #0f0;
       background: #000;
       max-width: 100%;
       display: block;
       margin: 0 auto;
     }
-    .game-page .game-info {
+    #game-page .game-info {
       width: 100%;
       max-width: 800px;
       display: flex;
@@ -156,14 +159,14 @@
       margin-left: auto;
       margin-right: auto;
     }
-    .game-page .controls {
+    #game-page .controls {
       margin-top: 15px;
       text-align: center;
       color: #999;
       font-size: 14px;
       line-height: 1.5;
     }
-    .game-page .start-btn {
+    #game-page .start-btn {
       background: #0f0;
       color: #000;
       border: none;
@@ -175,255 +178,300 @@
       margin-top: 10px;
       font-family: 'Courier New', monospace;
     }
-    .game-page .start-btn:hover {
+    #game-page .start-btn:hover {
       background: #0c0;
     }
+    #game-page .debug-text {
+      color: red;
+      font-size: 30px;
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+    }
 
-    /* 导航激活样式 */
+    /* 底部导航样式，最高层级，绝对能点到 */
+    .bottom-nav {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 60px !important;
+      background: #fff !important;
+      display: flex !important;
+      justify-content: space-around !important;
+      align-items: center !important;
+      border-top: 1px solid #eee !important;
+      z-index: 999999999999999 !important;
+      box-sizing: border-box !important;
+    }
+    .nav-item {
+      flex: 1 !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+      background: transparent !important;
+      border: none !important;
+      cursor: pointer !important;
+      font-size: 12px !important;
+      color: #666 !important;
+      z-index: 999999999999999 !important;
+    }
     .nav-item.active {
-      background: #4CAF50;
-      color: white;
+      background: #4CAF50 !important;
+      color: white !important;
+    }
+    .nav-icon {
+      font-size: 20px !important;
+      margin-bottom: 4px !important;
+    }
+
+    /* 悬浮按钮最高层级 */
+    .floating-game-btn {
+      z-index: 999999999999999 !important;
     }
   </style>
 </head>
 <body>
-  <!-- 首页内容 -->
-  <div class="container home-page">
-    <!-- 顶部工作时间 -->
-    <div class="work-time-card">
-      <span class="work-time-icon">⏰</span>
-      <span class="work-time-label">上班时间</span>
-      <span class="work-time-value" id="workTimeValue">09:00 - 18:00</span>
-    </div>
+  <!-- 首页 -->
+  <div id="home-page">
+    <div class="container">
+      <!-- 顶部工作时间 -->
+      <div class="work-time-card">
+        <span class="work-time-icon">⏰</span>
+        <span class="work-time-label">上班时间</span>
+        <span class="work-time-value" id="workTimeValue">09:00 - 18:00</span>
+      </div>
 
-    <!-- 核心收入显示 -->
-    <div class="earnings-card">
-      <div class="earnings-label">今日收入</div>
-      <div class="earnings-value">
-        <span class="currency" id="currencySymbol">¥</span>
-        <span class="amount pulse" id="currentEarnings">0.00</span>
-      </div>
-      <div class="work-timer">
-        <span class="timer-icon">⏱</span>
-        <span class="timer-value" id="workTime">00:00:00</span>
-        <span class="timer-label">已工作</span>
-      </div>
-    </div>
-
-    <!-- 进度条 -->
-    <div class="progress-card">
-      <div class="progress-info">
-        <span class="remaining-time" id="remainingTime">距下班 8小时</span>
-        <span class="expected-earnings" id="expectedEarnings">预计赚 ¥300</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
-      </div>
-      <span class="progress-text" id="progressText">0%</span>
-    </div>
-
-    <!-- 里程碑 -->
-    <div class="milestone-card">
-      <div class="milestone-title">
-        <span class="milestone-icon" id="milestoneIcon">☕</span>
-        <span>下一个目标</span>
-      </div>
-      <div class="milestone-progress">
-        <span class="milestone-amount" id="milestoneAmount">¥30</span>
-        <span class="milestone-name" id="milestoneName">咖啡自由</span>
-      </div>
-    </div>
-
-    <!-- 目标卡片 -->
-    <div class="goal-card">
-      <div class="goal-title">
-        <span class="goal-icon">🎯</span>
-        <span>攒钱目标</span>
-      </div>
-      <div class="goal-progress" id="goalProgress">
-        <div class="goal-info">
-          <span class="goal-name" id="goalName">买房 (¥1,000,000)</span>
-          <span class="goal-percent" id="goalPercent">0.01%</span>
+      <!-- 核心收入显示 -->
+      <div class="earnings-card">
+        <div class="earnings-label">今日收入</div>
+        <div class="earnings-value">
+          <span class="currency" id="currencySymbol">¥</span>
+          <span class="amount pulse" id="currentEarnings">0.00</span>
         </div>
-        <div class="goal-bar-bg">
-          <div class="goal-bar-fill" id="goalBar" style="width: 0.01%"></div>
-        </div>
-        <span class="goal-time" id="goalTime">还需要 10 年 8 个月</span>
-      </div>
-    </div>
-
-    <!-- 工作推荐 -->
-    <div class="jobs-card">
-      <div class="jobs-title">
-        <span class="jobs-icon">💼</span>
-        <span>高薪工作推荐</span>
-        <button class="refresh-btn" onclick="loadJobs()">刷新</button>
-      </div>
-      <div class="jobs-list" id="jobsList">
-        <!-- 工作列表会动态加载 -->
-        <div class="job-item">
-          <div class="job-title">加载中...</div>
+        <div class="work-timer">
+          <span class="timer-icon">⏱</span>
+          <span class="timer-value" id="workTime">00:00:00</span>
+          <span class="timer-label">已工作</span>
         </div>
       </div>
-    </div>
 
-    <!-- 操作按钮 -->
-    <div class="action-buttons">
-      <button class="toggle-btn start" id="toggleBtn" onclick="toggleTimer()">▶️ 开始赚钱</button>
-      <button class="settings-btn" onclick="openSettings()">⚙️ 设置</button>
-      <button class="goal-btn" onclick="openGoalSettings()">🎯 目标</button>
-    </div>
-
-    <!-- 设置弹窗 -->
-    <div class="modal" id="settingsModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>设置</h2>
-          <span class="close-btn" onclick="closeSettings()">×</span>
+      <!-- 进度条 -->
+      <div class="progress-card">
+        <div class="progress-info">
+          <span class="remaining-time" id="remainingTime">距下班 8小时</span>
+          <span class="expected-earnings" id="expectedEarnings">预计赚 ¥300</span>
         </div>
-        <div class="modal-body">
-          <div class="setting-group">
-            <label>每日工资</label>
-            <div class="input-group">
-              <span>¥</span>
-              <input type="number" id="dailySalary" value="300" min="0">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="progressText">0%</span>
+      </div>
+
+      <!-- 里程碑 -->
+      <div class="milestone-card">
+        <div class="milestone-title">
+          <span class="milestone-icon" id="milestoneIcon">☕</span>
+          <span>下一个目标</span>
+        </div>
+        <div class="milestone-progress">
+          <span class="milestone-amount" id="milestoneAmount">¥30</span>
+          <span class="milestone-name" id="milestoneName">咖啡自由</span>
+        </div>
+      </div>
+
+      <!-- 目标卡片 -->
+      <div class="goal-card">
+        <div class="goal-title">
+          <span class="goal-icon">🎯</span>
+          <span>攒钱目标</span>
+        </div>
+        <div class="goal-progress" id="goalProgress">
+          <div class="goal-info">
+            <span class="goal-name" id="goalName">买房 (¥1,000,000)</span>
+            <span class="goal-percent" id="goalPercent">0.01%</span>
+          </div>
+          <div class="goal-bar-bg">
+            <div class="goal-bar-fill" id="goalBar" style="width: 0.01%"></div>
+          </div>
+          <span class="goal-time" id="goalTime">还需要 10 年 8 个月</span>
+        </div>
+      </div>
+
+      <!-- 工作推荐 -->
+      <div class="jobs-card">
+        <div class="jobs-title">
+          <span class="jobs-icon">💼</span>
+          <span>高薪工作推荐</span>
+          <button class="refresh-btn" onclick="loadJobs()">刷新</button>
+        </div>
+        <div class="jobs-list" id="jobsList">
+          <!-- 工作列表会动态加载 -->
+          <div class="job-item">
+            <div class="job-title">加载中...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="action-buttons">
+        <button class="toggle-btn start" id="toggleBtn" onclick="toggleTimer()">▶️ 开始赚钱</button>
+        <button class="settings-btn" onclick="openSettings()">⚙️ 设置</button>
+        <button class="goal-btn" onclick="openGoalSettings()">🎯 目标</button>
+      </div>
+
+      <!-- 设置弹窗 -->
+      <div class="modal" id="settingsModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>设置</h2>
+            <span class="close-btn" onclick="closeSettings()">×</span>
+          </div>
+          <div class="modal-body">
+            <div class="setting-group">
+              <label>每日工资</label>
+              <div class="input-group">
+                <span>¥</span>
+                <input type="number" id="dailySalary" value="300" min="0">
+              </div>
+            </div>
+
+            <div class="setting-group">
+              <label>上班时间</label>
+              <input type="time" id="workStartTime" value="09:00">
+            </div>
+
+            <div class="setting-group">
+              <label>下班时间</label>
+              <input type="time" id="workEndTime" value="18:00">
+            </div>
+
+            <div class="setting-group">
+              <label>午休开始</label>
+              <input type="time" id="breakStartTime" value="12:00">
+            </div>
+
+            <div class="setting-group">
+              <label>午休时长（分钟）</label>
+              <input type="number" id="breakDuration" value="60" min="0" max="120">
+            </div>
+
+            <div class="setting-group">
+              <label>货币符号</label>
+              <select id="currency">
+                <option value="¥" selected>¥ 人民币</option>
+                <option value="$">$ 美元</option>
+                <option value="€">€ 欧元</option>
+                <option value="£">£ 英镑</option>
+              </select>
+            </div>
+
+            <div class="setting-group">
+              <label>所在城市</label>
+              <input type="text" id="city" placeholder="例如：北京" value="北京">
+            </div>
+            <div class="setting-group">
+              <label>从事行业</label>
+              <select id="industry">
+                <option value="it">互联网/IT</option>
+                <option value="finance">金融</option>
+                <option value="education">教育</option>
+                <option value="medical">医疗</option>
+                <option value="design">设计</option>
+                <option value="marketing">市场</option>
+                <option value="others">其他</option>
+              </select>
+            </div>
+
+            <div class="setting-group">
+              <label>聚合数据API Key（可选）</label>
+              <input type="text" id="jobsApiKey" placeholder="输入招聘API Key" value="">
             </div>
           </div>
-
-          <div class="setting-group">
-            <label>上班时间</label>
-            <input type="time" id="workStartTime" value="09:00">
+          <div class="modal-footer">
+            <button class="save-btn" onclick="saveSettings()">保存</button>
           </div>
-
-          <div class="setting-group">
-            <label>下班时间</label>
-            <input type="time" id="workEndTime" value="18:00">
-          </div>
-
-          <div class="setting-group">
-            <label>午休开始</label>
-            <input type="time" id="breakStartTime" value="12:00">
-          </div>
-
-          <div class="setting-group">
-            <label>午休时长（分钟）</label>
-            <input type="number" id="breakDuration" value="60" min="0" max="120">
-          </div>
-
-          <div class="setting-group">
-            <label>货币符号</label>
-            <select id="currency">
-              <option value="¥" selected>¥ 人民币</option>
-              <option value="$">$ 美元</option>
-              <option value="€">€ 欧元</option>
-              <option value="£">£ 英镑</option>
-            </select>
-          </div>
-
-          <div class="setting-group">
-            <label>所在城市</label>
-            <input type="text" id="city" placeholder="例如：北京" value="北京">
-          </div>
-          <div class="setting-group">
-            <label>从事行业</label>
-            <select id="industry">
-              <option value="it">互联网/IT</option>
-              <option value="finance">金融</option>
-              <option value="education">教育</option>
-              <option value="medical">医疗</option>
-              <option value="design">设计</option>
-              <option value="marketing">市场</option>
-              <option value="others">其他</option>
-            </select>
-          </div>
-
-          <div class="setting-group">
-            <label>聚合数据API Key（可选）</label>
-            <input type="text" id="jobsApiKey" placeholder="输入招聘API Key" value="">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="save-btn" onclick="saveSettings()">保存</button>
         </div>
       </div>
+
+      <!-- 目标设置弹窗 -->
+      <div class="modal" id="goalModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>攒钱目标设置</h2>
+            <span class="close-btn" onclick="closeGoalSettings()">×</span>
+          </div>
+          <div class="modal-body">
+            <div class="setting-group">
+              <label>目标名称</label>
+              <input type="text" id="goalNameInput" placeholder="例如：买房、买车、旅游" value="买房">
+            </div>
+            <div class="setting-group">
+              <label>目标金额</label>
+              <div class="input-group">
+                <span id="goalCurrency">¥</span>
+                <input type="number" id="goalAmount" value="1000000" min="0">
+              </div>
+            </div>
+            <div class="setting-group">
+              <label>已攒金额</label>
+              <div class="input-group">
+                <span id="goalCurrencySaved">¥</span>
+                <input type="number" id="goalSaved" value="1000" min="0">
+              </div>
+            </div>
+            <div class="setting-group">
+              <label>每月攒钱金额</label>
+              <div class="input-group">
+                <span id="goalCurrencyMonth">¥</span>
+                <input type="number" id="goalMonthlySave" value="5000" min="0">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="save-btn" onclick="saveGoalSettings()">保存目标</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 悬浮游戏入口按钮 -->
+      <button id="floatingGameBtn" class="floating-game-btn" style="
+        position: fixed !important;
+        bottom: 80px !important;
+        right: 20px !important;
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        background: #4CAF50 !important;
+        color: white !important;
+        border: none !important;
+        font-size: 24px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        cursor: pointer !important;
+      ">🎮</button>
+
+      <!-- 悬浮游戏直接打开按钮 -->
+      <button id="directGameBtn" class="floating-game-btn" style="
+        position: fixed !important;
+        bottom: 150px !important;
+        right: 20px !important;
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        background: #ff9800 !important;
+        color: white !important;
+        border: none !important;
+        font-size: 24px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        cursor: pointer !important;
+      ">🎯</button>
     </div>
-
-    <!-- 目标设置弹窗 -->
-    <div class="modal" id="goalModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>攒钱目标设置</h2>
-          <span class="close-btn" onclick="closeGoalSettings()">×</span>
-        </div>
-        <div class="modal-body">
-          <div class="setting-group">
-            <label>目标名称</label>
-            <input type="text" id="goalNameInput" placeholder="例如：买房、买车、旅游" value="买房">
-          </div>
-          <div class="setting-group">
-            <label>目标金额</label>
-            <div class="input-group">
-              <span id="goalCurrency">¥</span>
-              <input type="number" id="goalAmount" value="1000000" min="0">
-            </div>
-          </div>
-          <div class="setting-group">
-            <label>已攒金额</label>
-            <div class="input-group">
-              <span id="goalCurrencySaved">¥</span>
-              <input type="number" id="goalSaved" value="1000" min="0">
-            </div>
-          </div>
-          <div class="setting-group">
-            <label>每月攒钱金额</label>
-            <div class="input-group">
-              <span id="goalCurrencyMonth">¥</span>
-              <input type="number" id="goalMonthlySave" value="5000" min="0">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="save-btn" onclick="saveGoalSettings()">保存目标</button>
-        </div>
-      </div>
-  <!-- 悬浮游戏入口按钮 -->
-  <button id="floatingGameBtn" class="floating-game-btn" style="
-    position: fixed !important;
-    bottom: 80px !important;
-    right: 20px !important;
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    background: #4CAF50 !important;
-    color: white !important;
-    border: none !important;
-    font-size: 24px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-    z-index: 9999999 !important;
-    cursor: pointer !important;
-  ">🎮</button>
-
-  <!-- 悬浮游戏直接打开按钮 -->
-  <button id="directGameBtn" class="floating-game-btn" style="
-    position: fixed !important;
-    bottom: 150px !important;
-    right: 20px !important;
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    background: #ff9800 !important;
-    color: white !important;
-    border: none !important;
-    font-size: 24px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-    z-index: 9999999 !important;
-    cursor: pointer !important;
-  ">🎯</button>
-
   </div>
 
-  <!-- 岗位推荐页面 直接内嵌，不用iframe -->
-  <div class="jobs-page">
+  <!-- 岗位推荐页面 -->
+  <div id="jobs-page">
     <div class="header">
       <h1>💼 高薪岗位推荐</h1>
       <button class="back-btn" onclick="switchPage('home')">← 返回首页</button>
@@ -460,26 +508,11 @@
       <div class="job-location">北京·朝阳区</div>
       <div class="job-desc">负责美团外卖后端服务开发，Node.js+MySQL技术栈，要求熟悉分布式系统，有性能优化经验。</div>
     </div>
-
-    <div class="job-card">
-      <div class="job-title">移动端开发工程师</div>
-      <div class="job-company">拼多多</div>
-      <div class="job-salary">35K-50K·18薪</div>
-      <div class="job-location">上海·长宁区</div>
-      <div class="job-desc">负责拼多多APP移动端开发，Flutter+原生技术栈，要求熟悉跨平台开发，有性能优化经验。</div>
-    </div>
-
-    <div class="job-card">
-      <div class="job-title">数据分析师</div>
-      <div class="job-company">百度</div>
-      <div class="job-salary">20K-30K·14薪</div>
-      <div class="job-location">北京·海淀区</div>
-      <div class="job-desc">负责百度搜索数据统计分析，Python+SQL技术栈，要求熟悉大数据分析工具，有机器学习经验优先。</div>
-    </div>
   </div>
 
-  <!-- 游戏页面 直接内嵌，不用iframe -->
-  <div class="game-page">
+  <!-- 游戏页面 -->
+  <div id="game-page">
+    <div class="debug-text">✅ 游戏页面加载成功！如果你能看到这段文字说明切换正常</div>
     <div class="game-header">
       <h1 class="game-title">🎮 雅达利经典游戏</h1>
       <button class="game-btn" onclick="switchPage('home')">← 返回</button>
@@ -504,7 +537,7 @@
   </div>
 
   <!-- 底部导航 -->
-  <div class="bottom-nav" style="z-index: 99999 !important;">
+  <div class="bottom-nav">
     <button class="nav-item active" onclick="switchPage('home')">
       <span class="nav-icon">🏠</span>
       <span class="nav-label">首页</span>
@@ -520,26 +553,32 @@
   </div>
 
   <script>
-    // 全局页面切换函数，100%可靠
+    // 最简单最可靠的页面切换函数
     function switchPage(page) {
-      // 隐藏所有页面
-      document.querySelector('.home-page').style.display = 'none';
-      document.querySelector('.jobs-page').style.display = 'none';
-      document.querySelector('.game-page').style.display = 'none';
-      
-      // 取消所有导航激活
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      
-      // 显示对应页面
+      // 强制获取所有页面元素
+      const home = document.getElementById('home-page');
+      const jobs = document.getElementById('jobs-page');
+      const game = document.getElementById('game-page');
+      const navs = document.querySelectorAll('.nav-item');
+
+      // 强制隐藏所有页面，用最重要的优先级
+      home.style.setProperty('display', 'none', 'important');
+      jobs.style.setProperty('display', 'none', 'important');
+      game.style.setProperty('display', 'none', 'important');
+
+      // 强制取消所有导航激活
+      navs.forEach(nav => nav.classList.remove('active'));
+
+      // 强制显示目标页面
       if (page === 'home') {
-        document.querySelector('.home-page').style.display = 'block';
-        document.querySelectorAll('.nav-item')[0].classList.add('active');
+        home.style.setProperty('display', 'block', 'important');
+        navs[0].classList.add('active');
       } else if (page === 'jobs') {
-        document.querySelector('.jobs-page').style.display = 'block';
-        document.querySelectorAll('.nav-item')[1].classList.add('active');
+        jobs.style.setProperty('display', 'block', 'important');
+        navs[1].classList.add('active');
       } else if (page === 'game') {
-        document.querySelector('.game-page').style.display = 'block';
-        document.querySelectorAll('.nav-item')[2].classList.add('active');
+        game.style.setProperty('display', 'block', 'important');
+        navs[2].classList.add('active');
         // 加载游戏脚本
         if (!window.gameLoaded) {
           const script = document.createElement('script');
@@ -550,20 +589,18 @@
       }
     }
 
-    // 绑定悬浮按钮点击
-    document.getElementById('floatingGameBtn').addEventListener('click', function() {
-      switchPage('game');
-    });
-    document.getElementById('directGameBtn').addEventListener('click', function() {
-      switchPage('game');
-    });
-
     // 游戏切换函数
     window.switchGame = function(game) {
       document.querySelectorAll('.game-selector .game-btn').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
-      if (window.currentGame) window.currentGame = game;
+      window.currentGame = game;
     }
+
+    // 绑定悬浮按钮点击
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('floatingGameBtn').addEventListener('click', () => switchPage('game'));
+      document.getElementById('directGameBtn').addEventListener('click', () => switchPage('game'));
+    });
   </script>
 
   <script src="app.js"></script>
