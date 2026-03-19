@@ -44,11 +44,11 @@ function switchPage(pageName) {
   
   // 隐藏所有页面
   document.querySelectorAll('.page').forEach(page => {
-    page.style.display = 'none'
+    page.style.setProperty('display', 'none', 'important')
   })
   
   // 显示目标页面
-  document.getElementById(`${pageName}-page`).style.display = 'block'
+  document.getElementById(`${pageName}-page`).style.setProperty('display', 'block', 'important')
   
   // 更新底部导航状态
   document.querySelectorAll('.nav-item').forEach(item => {
