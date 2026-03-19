@@ -41,28 +41,34 @@ let state = {
 // 页面切换功能 - 修复版
 function switchPage(pageName) {
   if (state.currentPage === pageName) return
-  
+
   // 隐藏所有页面
   document.querySelectorAll('.page').forEach(page => {
-    page.style.setProperty('display', 'none', 'important')
+    page.classList.remove('active')
   })
-  
+
   // 显示目标页面
-  document.getElementById(`${pageName}-page`).style.setProperty('display', 'block', 'important')
-  
+  const targetPage = document.getElementById(`${pageName}-page`)
+  if (targetPage) {
+    targetPage.classList.add('active')
+  }
+
   // 更新底部导航状态
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.remove('active')
   })
-  document.querySelectorAll('.nav-item')[['home', 'game', 'jobs'].indexOf(pageName)].classList.add('active')
-  
+  const navIndex = ['home', 'game', 'jobs'].indexOf(pageName)
+  if (navIndex !== -1) {
+    document.querySelectorAll('.nav-item')[navIndex].classList.add('active')
+  }
+
   // 页面切换后的回调
   if (pageName === 'jobs') {
     loadFullJobs()
   } else if (pageName === 'game') {
     initGame()
   }
-  
+
   state.currentPage = pageName
 }
 
