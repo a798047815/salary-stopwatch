@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>赚钱秒表 - 摸鱼赚钱两不误</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* 全局页面样式 */
+    .page {
+      width: 100vw;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+      display: none;
+    }
+    #home-page { display: block; }
+    
+    /* 游戏页面样式 */
+    #game-page {
+      background: #000 !important;
+      color: #fff !important;
+      font-family: 'Courier New', monospace !important;
+      padding-bottom: 80px !important;
+    }
+    #game-page .game-header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 auto 20px auto;
+      padding: 20px 20px 0 20px;
+    }
+    #game-page .game-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0f0;
+    }
+    #game-page .game-btn {
+      background: #333;
+      color: #fff;
+      border: 2px solid #0f0;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    #game-page .game-btn.active {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+    }
+    #game-page .game-btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+    #game-page .game-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #game-page #gameCanvas {
+      border: 2px solid #0f0;
+      background: #000;
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    #game-page .game-info {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      margin: 20px auto 0 auto;
+      font-size: 18px;
+      color: #0f0;
+      padding: 0 20px;
+    }
+    #game-page .controls {
+      margin-top: 15px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 0 20px;
+    }
+    #game-page .start-btn {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px;
+      font-family: 'Courier New', monospace;
+    }
+    #game-page .start-btn:hover {
+      background: #0c0;
+    }
+    #game-page .pause-btn {
+      background: #ff9800;
+    }
+    #game-page .pause-btn:hover {
+      background: #f57c00;
+    }
+
+    /* 岗位推荐页面样式 */
+    #jobs-page {
+      background: #f5f5f5 !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      padding-bottom: 80px !important;
+    }
+    #jobs-page .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #jobs-page .header h1 {
+      font-size: 20px;
+      color: #333;
+    }
+    #jobs-page .back-btn {
+      background: #f0f0f0;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #333;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #jobs-page .job-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #jobs-page .job-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    #jobs-page .job-company {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    #jobs-page .job-salary {
+      font-size: 16px;
+      color: #ff6b6b;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    #jobs-page .job-location {
+      font-size: 12px;
+      color: #999;
+      background: #f0f0f0;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    #jobs-page .job-desc {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* 底部导航样式 */
+    .bottom-nav {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 60px !important;
+      background: #fff !important;
+      display: flex !important;
+      justify-content: space-around !important;
+      align-items: center !important;
+      border-top: 1px solid #eee !important;
+      z-index: 999999 !important;
+      box-sizing: border-box !important;
+    }
+    .nav-item {
+      flex: 1 !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+      background: transparent !important;
+      border: none !important;
+      cursor: pointer !important;
+      font-size: 12px !important;
+      color: #666 !important;
+    }
+    .nav-item.active {
+      background: #4CAF50 !important;
+      color: white !important;
+    }
+    .nav-icon {
+      font-size: 20px !important;
+      margin-bottom: 4px !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- 首页 -->
+  <div id="home-page" class="page">
+    <div class="container">
+      <!-- 顶部工作时间 -->
+      <div class="work-time-card">
+        <span class="work-time-icon">⏰</span>
+        <span class="work-time-label">上班时间</span>
+        <span class="work-time-value" id="workTimeValue">09:00 - 18:00</span>
+      </div>
+
+      <!-- 核心收入显示 -->
+      <div class="earnings-card">
+        <div class="earnings-label">今日收入</div>
+        <div class="earnings-value">
+          <span class="currency" id="currencySymbol">¥</span>
+          <span class="amount pulse" id="currentEarnings">0.00</span>
+        </div>
+        <div class="work-timer">
+          <span class="timer-icon">⏱</span>
+          <span class="timer-value" id="workTime">00:00:00</span>
+          <span class="timer-label">已工作</span>
+        </div>
+      </div>
+
+      <!-- 进度条 -->
+      <div class="progress-card">
+        <div class="progress-info">
+          <span class="remaining-time" id="remainingTime">距下班 8小时</span>
+          <span class="expected-earnings" id="expectedEarnings">预计赚 ¥300</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="progressText">0%</span>
+      </div>
+
+      <!-- 里程碑 -->
+      <div class="milestone-card">
+        <div class="milestone-title">
+          <span class="milestone-icon" id="milestoneIcon">☕</span>
+          <span>下一个目标</span>
+        </div>
+        <div class="milestone-progress">
+          <span class="milestone-amount" id="milestoneAmount">¥30</span>
+          <span class="milestone-name" id="milestoneName">咖啡自由</span>
+        </div>
+      </div>
+
+      <!-- 目标卡片 -->
+      <div class="goal-card">
+        <div class="goal-title">
+          <span class="goal-icon">🎯</span>
+          <span>攒钱目标</span>
+        </div>
+        <div class="goal-progress" id="goalProgress">
+          <div class="goal-info">
+            <span class="goal-name" id="goalName">买房 (¥1,000,000)</span>
+            <span class="goal-percent" id="goalPercent">0.01%</span>
+          </div>
+          <div class="goal-bar-bg">
+            <div class="goal-bar-fill" id="goalBar" style="width: 0.01%"></div>
+          </div>
+          <span class="goal-time" id="goalTime">还需要 10 年 8 个月</span>
+        </div>
+      </div>
+
+      <!-- 工作推荐 -->
+      <div class="jobs-card">
+        <div class="jobs-title">
+          <span class="jobs-icon">💼</span>
+          <span>高薪工作推荐</span>
+          <button class="refresh-btn" onclick="loadJobs()">刷新</button>
+        </div>
+        <div class="jobs-list" id="jobsList">
+          <div class="job-item">
+            <div class="job-title">加载中...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="action-buttons">
+        <button class="toggle-btn start" id="toggleBtn" onclick="toggleTimer()">▶️ 开始赚钱</button>
+        <button class="settings-btn" onclick="openSettings()">⚙️ 设置</button>
+        <button class="goal-btn" onclick="openGoalSettings()">🎯 目标</button>
+      </div>
+
+      <!-- 设置弹窗 -->
+      <div class="modal" id="settingsModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>设置</h2>
+            <span class="close-btn" onclick="closeSettings()">×</span>
+          </div>
+          <div class="modal-body">
+            <div class="setting-group">
+              <label>每日工资</label>
+              <div class="input-group">
+                <span>¥</span>
+                <input type="number" id="dailySalary" value="300" min="0">
+              </div>
+            </div>
+
+            <div class="setting-group">
+              <label>上班时间</label>
+              <input type="time" id="workStartTime" value="09:00">
+            </div>
+
+            <div class="setting-group">
+              <label>下班时间</label>
+              <input type="time" id="workEndTime" value="18:00">
+            </div>
+
+            <div class="setting-group">
+              <label>午休开始</label>
+              <input type="time" id="breakStartTime" value="12:00">
+            </div>
+
+            <div class="setting-group">
+              <label>午休时长（分钟）</label>
+              <input type="number" id="breakDuration" value="60" min="0" max="120">
+            </div>
+
+            <div class="setting-group">
+              <label>货币符号</label>
+              <select id="currency">
+                <option value="¥" selected>¥ 人民币</option>
+                <option value="$">$ 美元</option>
+                <option value="€">€ 欧元</option>
+                <option value="£">£ 英镑</option>
+              </select>
+            </div>
+
+            <div class="setting-group">
+              <label>所在城市</label>
+              <input type="text" id="city" placeholder="例如：北京" value="北京">
+            </div>
+            <div class="setting-group">
+              <label>从事行业</label>
+              <select id="industry">
+                <option value="it">互联网/IT</option>
+                <option value="finance">金融</option>
+                <option value="education">教育</option>
+                <option value="medical">医疗</option>
+                <option value="design">设计</option>
+                <option value="marketing">市场</option>
+                <option value="others">其他</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="save-btn" onclick="saveSettings()">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 目标设置弹窗 -->
+      <div class="modal" id="goalModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>攒钱目标设置</h2>
+            <span class="close-btn" onclick="closeGoalSettings()">×</span>
+          </div>
+          <div class="modal-body">
+            <div class="setting-group">
+              <label>目标名称</label>
+              <input type="text" id="goalNameInput" placeholder="例如：买房、买车、旅游" value="买房">
+            </div>
+            <div class="setting-group">
+              <label>目标金额</label>
+              <div class="input-group">
+                <span id="goalCurrency">¥</span>
+                <input type="number" id="goalAmount" value="1000000" min="0">
+              </div>
+            </div>
+            <div class="setting-group">
+              <label>已攒金额</label>
+              <div class="input-group">
+                <span id="goalCurrencySaved">¥</span>
+                <input type="number" id="goalSaved" value="1000" min="0">
+              </div>
+            </div>
+            <div class="setting-group">
+              <label>每月攒钱金额</label>
+              <div class="input-group">
+                <span id="goalCurrencyMonth">¥</span>
+                <input type="number" id="goalMonthlySave" value="5000" min="0">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="save-btn" onclick="saveGoalSettings()">保存目标</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 游戏页面 -->
+  <div id="game-page" class="page">
+    <div class="game-header">
+      <div class="game-title">🎮 摸鱼游戏厅</div>
+      <button class="back-btn game-btn" onclick="switchPage('home')">← 返回首页</button>
+    </div>
+    
+    <div class="game-selector">
+      <button class="game-btn active" data-game="snake" onclick="switchGame('snake')">🐍 贪吃蛇</button>
+      <button class="game-btn" data-game="plane" onclick="switchGame('plane')">✈️ 飞机大战</button>
+      <button class="game-btn" data-game="tetris" onclick="switchGame('tetris')">🧱 俄罗斯方块</button>
+    </div>
+
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    
+    <div class="game-info">
+      <div>得分: <span id="gameScore">0</span></div>
+      <div>最高记录: <span id="gameHighScore">0</span></div>
+      <div>状态: <span id="gameStatus">准备开始</span></div>
+    </div>
+
+    <div class="controls">
+      <div>
+        <button class="start-btn" id="gameStartBtn" onclick="startGame()">▶️ 开始游戏</button>
+        <button class="start-btn pause-btn" id="gamePauseBtn" onclick="pauseGame()" style="display:none;">⏸️ 暂停</button>
+      </div>
+      <div id="gameControlsDesc">
+        贪吃蛇操作：方向键 ↑ ↓ ← → 控制方向
+      </div>
+    </div>
+  </div>
+
+  <!-- 岗位推荐页面 -->
+  <div id="jobs-page" class="page">
+    <div class="header">
+      <h1>💼 高薪岗位推荐</h1>
+      <button class="back-btn" onclick="switchPage('home')">← 返回首页</button>
+    </div>
+    <div id="fullJobsList">
+      <!-- 岗位列表动态加载 -->
+    </div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchPage('home')">
+      <div class="nav-icon">🏠</div>
+      <div>首页</div>
+    </button>
+    <button class="nav-item" onclick="switchPage('game')">
+      <div class="nav-icon">🎮</div>
+      <div>摸鱼</div>
+    </button>
+    <button class="nav-item" onclick="switchPage('jobs')">
+      <div class="nav-icon">💼</div>
+      <div>工作</div>
+    </button>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
