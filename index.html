@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>赚钱秒表 - 摸鱼赚钱两不误</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- PWA配置 -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4CAF50">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="赚钱秒表">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTI4IiBmaWxsPSIjNENBRjUwIi8+CjxwYXRoIGQ9Ik0yNTYgNjRMMzA0LjcgMTY2LjhMNDMgMTkyTDMwNC43IDIxNy4yTDI1NiAzMjBMMjA3LjMgMjE3LjJMMzYgMTkyTDIwNy4zIDE2Ni44TDI1NiA2NFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0zODQgMzg0TDEyOCAzODRWMjU2SDE5MlYzMjBIMzIwVjI1NkgzODRWMzg0WiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC44Ii8+Cjwvc3ZnPgo=">
   <style>
     /* 全局页面样式 */
     .page {
@@ -390,6 +398,44 @@
                 <option value="others">其他</option>
               </select>
             </div>
+
+            <div class="setting-group">
+              <label>屏幕常亮模式</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="toggle-switch" id="wakeLockToggle">
+                  <div class="toggle-slider"></div>
+                </div>
+                <span style="font-size: 14px; color: #666;">开启后屏幕不会自动锁屏，适合放在工位使用</span>
+              </div>
+            </div>
+
+            <style>
+              .toggle-switch {
+                width: 50px;
+                height: 26px;
+                background: #ccc;
+                border-radius: 13px;
+                position: relative;
+                cursor: pointer;
+                transition: all 0.3s;
+              }
+              .toggle-switch.active {
+                background: #4CAF50;
+              }
+              .toggle-slider {
+                position: absolute;
+                width: 22px;
+                height: 22px;
+                background: white;
+                border-radius: 50%;
+                top: 2px;
+                left: 2px;
+                transition: all 0.3s;
+              }
+              .toggle-switch.active .toggle-slider {
+                left: 26px;
+              }
+            </style>
           </div>
           <div class="modal-footer">
             <button class="save-btn" onclick="saveSettings()">保存</button>

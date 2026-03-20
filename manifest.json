@@ -1,0 +1,18 @@
+{
+  "name": "赚钱秒表",
+  "short_name": "赚钱秒表",
+  "description": "打工人专属赚钱计时工具，实时计算收入，健康提醒，摸鱼游戏一应俱全",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#4CAF50",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTI4IiBmaWxsPSIjNENBRjUwIi8+CjxwYXRoIGQ9Ik0yNTYgNjRMMzA0LjcgMTY2LjhMNDMgMTkyTDMwNC43IDIxNy4yTDI1NiAzMjBMMjA3LjMgMjE3LjJMMzYgMTkyTDIwNy4zIDE2Ni44TDI1NiA2NFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0zODQgMzg0TDEyOCAzODRWMjU2SDE5MlYzMjBIMzIwVjI1NkgzODRWMzg0WiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC44Ii8+Cjwvc3ZnPgo=",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

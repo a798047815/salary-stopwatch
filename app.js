@@ -7,7 +7,8 @@ let config = {
   breakDuration: 60,
   currency: '¥',
   city: '北京',
-  industry: 'it'
+  industry: 'it',
+  wakeLockEnabled: false
 }
 
 // 攒钱目标配置
@@ -117,13 +118,19 @@ function loadConfig() {
   document.getElementById('currency').value = config.currency
   document.getElementById('city').value = config.city
   document.getElementById('industry').value = config.industry
-  
+  document.getElementById('wakeLockToggle').classList.toggle('active', config.wakeLockEnabled)
+
   // 更新显示
   document.getElementById('currencySymbol').textContent = config.currency
   document.getElementById('workTimeValue').textContent = `${config.workStartTime} - ${config.workEndTime}`
   document.getElementById('goalCurrency').textContent = config.currency
   document.getElementById('goalCurrencySaved').textContent = config.currency
   document.getElementById('goalCurrencyMonth').textContent = config.currency
+
+  // 初始化屏幕常亮
+  if (config.wakeLockEnabled) {
+    enableWakeLock()
+  }
 }
 
 // 加载目标配置
@@ -462,6 +469,43 @@ function closeSettings() {
   document.getElementById('settingsModal').classList.remove('show')
 }
 
+// 屏幕常亮相关
+let wakeLock = null
+
+async function enableWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen')
+      console.log('屏幕常亮已开启')
+    }
+  } catch (err) {
+    console.log('屏幕常亮开启失败:', err)
+  }
+}
+
+function disableWakeLock() {
+  if (wakeLock) {
+    wakeLock.release()
+    wakeLock = null
+    console.log('屏幕常亮已关闭')
+  }
+}
+
+// 监听页面可见性变化，重新激活常亮
+document.addEventListener('visibilitychange', async () => {
+  if (wakeLock !== null && document.visibilityState === 'visible' && config.wakeLockEnabled) {
+    wakeLock = await navigator.wakeLock.request('screen')
+  }
+})
+
+// 切换常亮开关
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'wakeLockToggle' || e.target.parentElement.id === 'wakeLockToggle') {
+    const toggle = document.getElementById('wakeLockToggle')
+    toggle.classList.toggle('active')
+  }
+})
+
 // 保存设置
 function saveSettings() {
   config.dailySalary = parseFloat(document.getElementById('dailySalary').value) || 0
@@ -472,9 +516,17 @@ function saveSettings() {
   config.currency = document.getElementById('currency').value
   config.city = document.getElementById('city').value
   config.industry = document.getElementById('industry').value
-  
+  config.wakeLockEnabled = document.getElementById('wakeLockToggle').classList.contains('active')
+
   saveConfig()
   calculateEarningsPerSecond()
+
+  // 处理屏幕常亮
+  if (config.wakeLockEnabled) {
+    enableWakeLock()
+  } else {
+    disableWakeLock()
+  }
   
   // 更新显示
   document.getElementById('currencySymbol').textContent = config.currency
@@ -817,6 +869,19 @@ const originalInit = init
 init = function() {
   originalInit()
   initHealthReminders()
+}
+
+// 注册PWA Service Worker
+if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW注册成功:', registration.scope)
+      })
+      .catch(err => {
+        console.log('SW注册失败:', err)
+      })
+  })
 }
 
 // 初始化
