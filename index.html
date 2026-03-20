@@ -469,6 +469,237 @@
     </div>
   </div>
 
+  <!-- 健康提醒页面 -->
+  <div id="health-page" class="page">
+    <style>
+      #health-page {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        padding-bottom: 80px !important;
+        color: white !important;
+      }
+      #health-page .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #health-page .header h1 {
+        font-size: 20px;
+        color: white;
+      }
+      #health-page .back-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .health-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .health-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .reminder-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .reminder-item:last-child {
+        border-bottom: none;
+      }
+      .reminder-info {
+        flex: 1;
+      }
+      .reminder-name {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .reminder-desc {
+        font-size: 12px;
+        opacity: 0.8;
+      }
+      .reminder-toggle {
+        width: 50px;
+        height: 26px;
+        background: rgba(255,255,255,0.3);
+        border-radius: 13px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .reminder-toggle.active {
+        background: #4CAF50;
+      }
+      .reminder-toggle::after {
+        content: '';
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        background: white;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: all 0.3s;
+      }
+      .reminder-toggle.active::after {
+        left: 26px;
+      }
+      .reminder-interval {
+        width: 80px;
+        margin-left: 15px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        padding: 6px 8px;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 14px;
+      }
+      .reminder-interval option {
+        color: #333;
+      }
+      .health-status {
+        text-align: center;
+        padding: 20px;
+      }
+      .next-reminder {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 10px;
+      }
+      .test-notification-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+    </style>
+    <div class="header">
+      <h1>💪 打工人健康助手</h1>
+      <button class="back-btn" onclick="switchPage('home')">← 返回首页</button>
+    </div>
+
+    <div class="health-card">
+      <div class="health-title">
+        <span>⏰ 提醒设置</span>
+      </div>
+      <div class="reminder-item">
+        <div class="reminder-info">
+          <div class="reminder-name">💧 喝水提醒</div>
+          <div class="reminder-desc">每隔一段时间提醒你补充水分</div>
+        </div>
+        <select class="reminder-interval" id="waterInterval">
+          <option value="30">30分钟</option>
+          <option value="60" selected>1小时</option>
+          <option value="90">1.5小时</option>
+          <option value="120">2小时</option>
+        </select>
+        <div class="reminder-toggle active" id="waterToggle" onclick="toggleReminder('water')"></div>
+      </div>
+      <div class="reminder-item">
+        <div class="reminder-info">
+          <div class="reminder-name">🧘 伸懒腰提醒</div>
+          <div class="reminder-desc">工作久了起来活动一下筋骨</div>
+        </div>
+        <select class="reminder-interval" id="stretchInterval">
+          <option value="45">45分钟</option>
+          <option value="60" selected>1小时</option>
+          <option value="90">1.5小时</option>
+          <option value="120">2小时</option>
+        </select>
+        <div class="reminder-toggle active" id="stretchToggle" onclick="toggleReminder('stretch')"></div>
+      </div>
+      <div class="reminder-item">
+        <div class="reminder-info">
+          <div class="reminder-name">🚶 活动提醒</div>
+          <div class="reminder-desc">站起来走一走，促进血液循环</div>
+        </div>
+        <select class="reminder-interval" id="walkInterval">
+          <option value="60">1小时</option>
+          <option value="90" selected>1.5小时</option>
+          <option value="120">2小时</option>
+        </select>
+        <div class="reminder-toggle active" id="walkToggle" onclick="toggleReminder('walk')"></div>
+      </div>
+      <div class="reminder-item">
+        <div class="reminder-info">
+          <div class="reminder-name">👀 护眼提醒</div>
+          <div class="reminder-desc">远眺20秒，放松一下你的眼睛</div>
+        </div>
+        <select class="reminder-interval" id="eyeInterval">
+          <option value="20">20分钟</option>
+          <option value="30" selected>30分钟</option>
+          <option value="45">45分钟</option>
+          <option value="60">1小时</option>
+        </select>
+        <div class="reminder-toggle active" id="eyeToggle" onclick="toggleReminder('eye')"></div>
+      </div>
+    </div>
+
+    <div class="health-card">
+      <div class="health-title">
+        <span>📊 今日健康数据</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div style="text-align: center;">
+          <div style="font-size: 32px; margin-bottom: 5px;" id="waterCount">0</div>
+          <div style="font-size: 14px; opacity: 0.9;">喝水次数</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 32px; margin-bottom: 5px;" id="stretchCount">0</div>
+          <div style="font-size: 14px; opacity: 0.9;">伸懒腰次数</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 32px; margin-bottom: 5px;" id="walkCount">0</div>
+          <div style="font-size: 14px; opacity: 0.9;">活动次数</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="font-size: 32px; margin-bottom: 5px;" id="eyeCount">0</div>
+          <div style="font-size: 14px; opacity: 0.9;">护眼次数</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="health-card">
+      <div class="health-status">
+        <div class="next-reminder" id="nextReminderText">下一个提醒：30分钟后 护眼提醒</div>
+        <button class="test-notification-btn" onclick="testNotification()">🔔 测试通知功能</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 底部导航 -->
   <div class="bottom-nav">
     <button class="nav-item active" onclick="switchPage('home')">
@@ -482,6 +713,10 @@
     <button class="nav-item" onclick="switchPage('jobs')">
       <div class="nav-icon">💼</div>
       <div>工作</div>
+    </button>
+    <button class="nav-item" onclick="switchPage('health')">
+      <div class="nav-icon">💪</div>
+      <div>健康</div>
     </button>
   </div>
 

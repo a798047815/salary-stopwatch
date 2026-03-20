@@ -57,7 +57,7 @@ function switchPage(pageName) {
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.remove('active')
   })
-  const navIndex = ['home', 'game', 'jobs'].indexOf(pageName)
+  const navIndex = ['home', 'game', 'jobs', 'health'].indexOf(pageName)
   if (navIndex !== -1) {
     document.querySelectorAll('.nav-item')[navIndex].classList.add('active')
   }
@@ -527,6 +527,296 @@ window.onclick = function(event) {
   if (event.target == goalModal) {
     closeGoalSettings()
   }
+}
+
+// ==================== 健康提醒功能 ====================
+let healthConfig = {
+  reminders: {
+    water: { enabled: true, interval: 60, lastTrigger: null, count: 0 },
+    stretch: { enabled: true, interval: 60, lastTrigger: null, count: 0 },
+    walk: { enabled: true, interval: 90, lastTrigger: null, count: 0 },
+    eye: { enabled: true, interval: 30, lastTrigger: null, count: 0 }
+  },
+  healthTimer: null,
+  notificationPermission: false
+}
+
+const reminderMessages = {
+  water: { title: '💧 喝水时间到啦！', body: '工作再忙也别忘了补充水分哦~ 喝杯水休息一下吧😊' },
+  stretch: { title: '🧘 伸懒腰时间到！', body: '坐了太久啦！站起来伸个懒腰，活动一下肩颈和腰椎吧~' },
+  walk: { title: '🚶 该活动啦！', body: '起来走两步吧，促进血液循环，对身体更好哦~' },
+  eye: { title: '👀 护眼时间到！', body: '眼睛太累啦！看看远处20秒，放松一下你的双眼吧~' }
+}
+
+// 初始化健康提醒
+function initHealthReminders() {
+  // 请求通知权限
+  if ('Notification' in window) {
+    Notification.requestPermission().then(permission => {
+      healthConfig.notificationPermission = permission === 'granted'
+    })
+  }
+
+  // 加载保存的配置
+  loadHealthConfig()
+
+  // 更新UI
+  updateHealthUI()
+
+  // 启动健康提醒定时器
+  startHealthTimer()
+}
+
+// 加载健康配置
+function loadHealthConfig() {
+  const saved = localStorage.getItem('healthConfig')
+  if (saved) {
+    const parsed = JSON.parse(saved)
+    healthConfig.reminders = { ...healthConfig.reminders, ...parsed.reminders }
+  }
+
+  // 初始化日期变更时重置计数
+  const today = new Date().toDateString()
+  const lastDate = localStorage.getItem('healthLastDate')
+  if (lastDate !== today) {
+    Object.values(healthConfig.reminders).forEach(r => r.count = 0)
+    localStorage.setItem('healthLastDate', today)
+    saveHealthConfig()
+  }
+
+  // 更新表单值
+  Object.keys(healthConfig.reminders).forEach(type => {
+    const toggle = document.getElementById(`${type}Toggle`)
+    const interval = document.getElementById(`${type}Interval`)
+    if (toggle) {
+      toggle.classList.toggle('active', healthConfig.reminders[type].enabled)
+    }
+    if (interval) {
+      interval.value = healthConfig.reminders[type].interval
+    }
+  })
+}
+
+// 保存健康配置
+function saveHealthConfig() {
+  localStorage.setItem('healthConfig', JSON.stringify(healthConfig))
+}
+
+// 更新健康UI
+function updateHealthUI() {
+  // 更新计数
+  Object.keys(healthConfig.reminders).forEach(type => {
+    const countEl = document.getElementById(`${type}Count`)
+    if (countEl) {
+      countEl.textContent = healthConfig.reminders[type].count
+    }
+  })
+
+  // 计算下一个提醒
+  updateNextReminder()
+}
+
+// 更新下一个提醒时间
+function updateNextReminder() {
+  const nextEl = document.getElementById('nextReminderText')
+  if (!nextEl) return
+
+  const now = Date.now()
+  let nextTime = Infinity
+  let nextType = null
+
+  Object.entries(healthConfig.reminders).forEach(([type, config]) => {
+    if (!config.enabled) return
+    const last = config.lastTrigger || now
+    const next = last + config.interval * 60 * 1000
+    if (next < nextTime) {
+      nextTime = next
+      nextType = type
+    }
+  })
+
+  if (!nextType) {
+    nextEl.textContent = '当前没有开启的提醒'
+    return
+  }
+
+  const minutesLeft = Math.ceil((nextTime - now) / (60 * 1000))
+  const reminderName = { water: '喝水', stretch: '伸懒腰', walk: '活动', eye: '护眼' }[nextType]
+
+  if (minutesLeft <= 0) {
+    nextEl.textContent = `下一个提醒：即将到来 ${reminderName}提醒`
+  } else {
+    nextEl.textContent = `下一个提醒：${minutesLeft}分钟后 ${reminderName}提醒`
+  }
+}
+
+// 切换提醒开关
+function toggleReminder(type) {
+  const config = healthConfig.reminders[type]
+  config.enabled = !config.enabled
+
+  const toggle = document.getElementById(`${type}Toggle`)
+  toggle.classList.toggle('active', config.enabled)
+
+  // 如果开启了，重置上次触发时间
+  if (config.enabled) {
+    config.lastTrigger = Date.now()
+  }
+
+  saveHealthConfig()
+  updateNextReminder()
+}
+
+// 切换提醒间隔
+document.addEventListener('change', (e) => {
+  if (e.target.classList.contains('reminder-interval')) {
+    const type = e.target.id.replace('Interval', '')
+    healthConfig.reminders[type].interval = parseInt(e.target.value)
+    healthConfig.reminders[type].lastTrigger = Date.now()
+    saveHealthConfig()
+    updateNextReminder()
+  }
+})
+
+// 启动健康提醒定时器
+function startHealthTimer() {
+  if (healthConfig.healthTimer) {
+    clearInterval(healthConfig.healthTimer)
+  }
+
+  healthConfig.healthTimer = setInterval(() => {
+    checkReminders()
+    updateNextReminder()
+  }, 60000) // 每分钟检查一次
+}
+
+// 检查是否需要触发提醒
+function checkReminders() {
+  const now = Date.now()
+  Object.entries(healthConfig.reminders).forEach(([type, config]) => {
+    if (!config.enabled) return
+    const last = config.lastTrigger || now
+    const intervalMs = config.interval * 60 * 1000
+    if (now - last >= intervalMs) {
+      triggerReminder(type)
+      config.lastTrigger = now
+      config.count++
+      saveHealthConfig()
+      updateHealthUI()
+    }
+  })
+}
+
+// 触发提醒
+function triggerReminder(type) {
+  const message = reminderMessages[type]
+
+  // 页面内提醒
+  showToast(message.title, message.body)
+
+  // 系统通知
+  if (healthConfig.notificationPermission && 'Notification' in window && document.hidden) {
+    new Notification(message.title, {
+      body: message.body,
+      icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiM2NjdFRUEiLz4KPHBhdGggZD0iTTMyIDRMMzYuNDcgMTIuNTNMNDYgMTZMMzYuNDcgMTkuNDdMMzIgMjhMMjcuNTMgMTkuNDdMMTggMTZMMjcuNTMgMTIuNTNMMzIgNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo='
+    })
+  }
+
+  // 播放提示音
+  playNotificationSound()
+}
+
+// 测试通知
+function testNotification() {
+  triggerReminder('water')
+}
+
+// 显示toast提醒
+function showToast(title, body) {
+  // 创建toast元素
+  const toast = document.createElement('div')
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    z-index: 9999999;
+    max-width: 300px;
+    animation: slideIn 0.3s ease-out;
+  `
+  toast.innerHTML = `
+    <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${title}</div>
+    <div style="font-size: 14px; line-height: 1.5;">${body}</div>
+  `
+  document.body.appendChild(toast)
+
+  // 添加动画
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  `
+  document.head.appendChild(style)
+
+  // 3秒后消失
+  setTimeout(() => {
+    toast.style.animation = 'slideOut 0.3s ease-out forwards'
+    setTimeout(() => {
+      document.body.removeChild(toast)
+    }, 300)
+  }, 3000)
+}
+
+// 播放提示音
+function playNotificationSound() {
+  // 使用简单的音频上下文播放提示音
+  if ('AudioContext' in window || 'webkitAudioContext' in window) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    const audioCtx = new AudioContext()
+    const oscillator = audioCtx.createOscillator()
+    const gainNode = audioCtx.createGain()
+
+    oscillator.connect(gainNode)
+    gainNode.connect(audioCtx.destination)
+
+    oscillator.frequency.value = 800
+    oscillator.type = 'sine'
+
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5)
+
+    oscillator.start(audioCtx.currentTime)
+    oscillator.stop(audioCtx.currentTime + 0.5)
+  }
+}
+
+// 在原有init函数末尾加入健康提醒初始化
+const originalInit = init
+init = function() {
+  originalInit()
+  initHealthReminders()
 }
 
 // 初始化
