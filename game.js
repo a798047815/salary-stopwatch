@@ -29,17 +29,30 @@ const gameState = {
   tetrisLines: 0
 }
 
+// 触摸状态
+const touchState = {
+  startX: 0,
+  startY: 0,
+  lastTouchTime: 0,
+  isDragging: false
+}
+
 // 游戏初始化
 function initGame() {
   gameState.canvas = document.getElementById('gameCanvas')
   gameState.ctx = gameState.canvas.getContext('2d')
-  
+
   // 加载最高记录
   updateHighScoreUI()
-  
+
   // 绑定键盘事件
   window.addEventListener('keydown', handleKeyPress)
-  
+
+  // 绑定触摸事件
+  gameState.canvas.addEventListener('touchstart', handleTouchStart, { passive: false })
+  gameState.canvas.addEventListener('touchmove', handleTouchMove, { passive: false })
+  gameState.canvas.addEventListener('touchend', handleTouchEnd, { passive: false })
+
   // 初始化当前游戏
   initCurrentGame()
 }
@@ -51,15 +64,15 @@ function initCurrentGame() {
   switch(gameState.currentGame) {
     case 'snake':
       initSnake()
-      document.getElementById('gameControlsDesc').textContent = '贪吃蛇操作：方向键 ↑ ↓ ← → 控制方向'
+      document.getElementById('gameControlsDesc').textContent = '键盘：方向键控制 | 触屏：上下左右滑动控制方向'
       break
     case 'plane':
       initPlane()
-      document.getElementById('gameControlsDesc').textContent = '飞机大战操作：方向键 ← → 移动，空格键发射子弹'
+      document.getElementById('gameControlsDesc').textContent = '键盘：方向键移动，空格发射 | 触屏：拖动飞机移动，点击发射子弹'
       break
     case 'tetris':
       initTetris()
-      document.getElementById('gameControlsDesc').textContent = '俄罗斯方块操作：方向键 ← → 移动，↑ 旋转，↓ 加速下落'
+      document.getElementById('gameControlsDesc').textContent = '键盘：方向键控制 | 触屏：左右滑动移动，上滑旋转，下滑加速，点击快速下落'
       break
   }
   
@@ -192,6 +205,14 @@ function runGameLoop() {
   }, speed)
 }
 
+// 触摸状态
+const touchState = {
+  startX: 0,
+  startY: 0,
+  lastTouchTime: 0,
+  isDragging: false
+}
+
 // 键盘事件处理
 function handleKeyPress(e) {
   if (!gameState.isRunning || gameState.isPaused) {
@@ -201,7 +222,7 @@ function handleKeyPress(e) {
     }
     return
   }
-  
+
   switch(gameState.currentGame) {
     case 'snake':
       handleSnakeKeyPress(e)
@@ -212,6 +233,138 @@ function handleKeyPress(e) {
     case 'tetris':
       handleTetrisKeyPress(e)
       break
+  }
+}
+
+// 触摸开始事件
+function handleTouchStart(e) {
+  e.preventDefault()
+  const touch = e.touches[0]
+  touchState.startX = touch.clientX
+  touchState.startY = touch.clientY
+  touchState.lastTouchTime = Date.now()
+  touchState.isDragging = false
+
+  // 游戏未运行时点击开始游戏
+  if (!gameState.isRunning || gameState.isPaused) {
+    startGame()
+    return
+  }
+
+  // 飞机大战：记录初始触摸位置
+  if (gameState.currentGame === 'plane') {
+    const rect = gameState.canvas.getBoundingClientRect()
+    const touchX = touch.clientX - rect.left
+    const touchY = touch.clientY - rect.top
+    // 检查是否点击到飞机
+    if (touchX >= gameState.plane.x && touchX <= gameState.plane.x + gameState.plane.width &&
+        touchY >= gameState.plane.y && touchY <= gameState.plane.y + gameState.plane.height) {
+      touchState.isDragging = true
+    }
+  }
+}
+
+// 触摸移动事件
+function handleTouchMove(e) {
+  e.preventDefault()
+  if (!gameState.isRunning || gameState.isPaused) return
+
+  const touch = e.touches[0]
+  const deltaX = touch.clientX - touchState.startX
+  const deltaY = touch.clientY - touchState.startY
+
+  // 飞机大战：拖动飞机
+  if (gameState.currentGame === 'plane' && touchState.isDragging) {
+    const rect = gameState.canvas.getBoundingClientRect()
+    gameState.plane.x = Math.max(0, Math.min(gameState.canvas.width - gameState.plane.width,
+                                             touch.clientX - rect.left - gameState.plane.width / 2))
+    return
+  }
+}
+
+// 触摸结束事件
+function handleTouchEnd(e) {
+  e.preventDefault()
+  if (!gameState.isRunning || gameState.isPaused) return
+
+  const touch = e.changedTouches[0]
+  const deltaX = touch.clientX - touchState.startX
+  const deltaY = touch.clientY - touchState.startY
+  const touchDuration = Date.now() - touchState.lastTouchTime
+
+  // 判断是点击还是滑动
+  const isClick = Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10 && touchDuration < 200
+
+  // 处理点击事件
+  if (isClick) {
+    switch(gameState.currentGame) {
+      case 'plane':
+        // 飞机大战点击发射子弹
+        gameState.bullets.push({
+          x: gameState.plane.x + gameState.plane.width / 2 - 2.5,
+          y: gameState.plane.y - 10
+        })
+        break
+      case 'tetris':
+        // 俄罗斯方块点击快速下落
+        while (!checkCollision(gameState.tetrisPiece, 0, 1)) {
+          gameState.tetrisPiece.y += 1
+          gameState.score += 2
+        }
+        updateScoreUI()
+        mergePiece()
+        generateTetrisPiece()
+        generateTetrisNextPiece()
+        break
+    }
+    return
+  }
+
+  // 处理滑动事件
+  const threshold = 30 // 滑动最小距离
+  if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
+    let direction = ''
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      direction = deltaX > 0 ? 'right' : 'left'
+    } else {
+      direction = deltaY > 0 ? 'down' : 'up'
+    }
+
+    // 根据不同游戏处理滑动
+    switch(gameState.currentGame) {
+      case 'snake':
+        // 贪吃蛇滑动控制方向
+        if (direction === 'up' && gameState.direction !== 'down') {
+          gameState.direction = 'up'
+        } else if (direction === 'down' && gameState.direction !== 'up') {
+          gameState.direction = 'down'
+        } else if (direction === 'left' && gameState.direction !== 'right') {
+          gameState.direction = 'left'
+        } else if (direction === 'right' && gameState.direction !== 'left') {
+          gameState.direction = 'right'
+        }
+        break
+      case 'tetris':
+        // 俄罗斯方块滑动控制
+        if (direction === 'left') {
+          if (!checkCollision(gameState.tetrisPiece, -1, 0)) {
+            gameState.tetrisPiece.x -= 1
+          }
+        } else if (direction === 'right') {
+          if (!checkCollision(gameState.tetrisPiece, 1, 0)) {
+            gameState.tetrisPiece.x += 1
+          }
+        } else if (direction === 'down') {
+          if (!checkCollision(gameState.tetrisPiece, 0, 1)) {
+            gameState.tetrisPiece.y += 1
+            gameState.score += 1
+            updateScoreUI()
+          }
+        } else if (direction === 'up') {
+          rotatePiece()
+        }
+        break
+    }
   }
 }
 
