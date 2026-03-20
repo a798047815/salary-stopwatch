@@ -17,6 +17,10 @@
       display: none !important;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
     }
+    /* 游戏页面优先级更高，覆盖全局背景 */
+    .page#game-page {
+      background: #000 !important;
+    }
     .page.active { display: block !important; }
     
     /* 游戏页面样式 */
@@ -25,6 +29,14 @@
       color: #fff !important;
       font-family: 'Courier New', monospace !important;
       padding-bottom: 80px !important;
+      min-height: 100vh !important;
+      height: auto !important;
+    }
+    /* 确保游戏页面激活时整个页面背景都是黑色 */
+    body:has(#game-page.active) {
+      background: #000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
     }
     #game-page .game-header {
       width: 100%;
