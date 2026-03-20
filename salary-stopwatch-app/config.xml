@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.salary.stopwatch" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>赚钱秒表</name>
+    <description>
+        打工人专属赚钱计时工具，实时计算收入，还有健康提醒、摸鱼游戏等功能。
+    </description>
+    <author email="developer@example.com" href="https://github.com/a798047815/salary-stopwatch">
+        赚钱秒表开发团队
+    </author>
+    <content src="index.html" />
+
+    <!-- 基础配置 -->
+    <preference name="Fullscreen" value="true" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="BackgroundColor" value="#1a1a2e" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="AllowBackForwardNavigationGestures" value="false" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
+
+    <!-- 权限配置 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- 网络访问配置 -->
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-navigation href="*" />
+    <access origin="*" />
+</widget>
