@@ -42,10 +42,12 @@
       width: 100%;
       max-width: 800px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       margin: 0 auto 25px auto;
-      padding: 25px 20px 0 20px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.8) !important;
+      border-bottom: 2px solid #0f0 !important;
     }
     #game-page .game-title {
       display: none;
@@ -440,7 +442,7 @@
   <div id="game-page" class="page">
     <div class="game-header">
       <div class="game-title">🎮 摸鱼游戏厅</div>
-      <button class="back-btn game-btn" onclick="switchPage('home')">← 返回首页</button>
+      <button class="game-btn" onclick="switchPage('home')">← 返回首页</button>
     </div>
     
     <div class="game-selector">
