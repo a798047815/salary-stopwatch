@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salary-stopwatch-v2'
+const CACHE_NAME = 'salary-stopwatch-v3'
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -29,19 +29,43 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// 拦截请求，优先缓存
+// 拦截请求
 self.addEventListener('fetch', (event) => {
+  const request = event.request
+
+  // HTML文件走网络优先，保证最新
+  if (request.mode === 'navigate' || request.headers.get('Accept').includes('text/html')) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          // 缓存最新的HTML
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone()
+            caches.open(CACHE_NAME)
+              .then((cache) => cache.put(request, responseToCache))
+          }
+          return networkResponse
+        })
+        .catch(() => {
+          // 网络失败返回缓存
+          return caches.match(request)
+        })
+    )
+    return
+  }
+
+  // 其他资源走缓存优先
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then((cachedResponse) => {
         // 有缓存就返回缓存，没有就发起网络请求
-        return cachedResponse || fetch(event.request)
+        return cachedResponse || fetch(request)
           .then((networkResponse) => {
             // 缓存新的请求结果
             if (networkResponse && networkResponse.status === 200) {
               const responseToCache = networkResponse.clone()
               caches.open(CACHE_NAME)
-                .then((cache) => cache.put(event.request, responseToCache))
+                .then((cache) => cache.put(request, responseToCache))
             }
             return networkResponse
           })

@@ -60,7 +60,15 @@ function initGame() {
 // 初始化当前选择的游戏
 function initCurrentGame() {
   stopGame()
-  
+
+  // 强制获取最新的canvas元素和上下文
+  gameState.canvas = document.getElementById('gameCanvas')
+  gameState.ctx = gameState.canvas.getContext('2d')
+
+  // 清空画布，重绘初始背景
+  gameState.ctx.fillStyle = '#000'
+  gameState.ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
+
   switch(gameState.currentGame) {
     case 'snake':
       initSnake()
@@ -75,7 +83,7 @@ function initCurrentGame() {
       document.getElementById('gameControlsDesc').textContent = '键盘：方向键控制 | 触屏：左右滑动移动，上滑旋转，下滑加速，点击快速下落'
       break
   }
-  
+
   updateGameStatus('准备开始')
   updateScoreUI()
 }
