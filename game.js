@@ -170,6 +170,11 @@ function startGame() {
     return
   }
 
+  // 游戏结束后重新开始，先重置
+  if (gameState.score > 0) {
+    initCurrentGame()
+  }
+
   gameState.isRunning = true
   gameState.isPaused = false
   gameState.score = 0
@@ -222,24 +227,39 @@ function stopGame() {
 // 游戏结束
 function gameOver() {
   stopGame()
-  updateGameStatus(`游戏结束！得分：${gameState.score}`)
 
   // 保存最高记录
   const earnings = calculateGameEarnings(gameState.score)
   const currency = window.config ? window.config.currency || '¥' : '¥'
+  let message = ''
   if (gameState.score > gameState.highScore) {
     gameState.highScore = gameState.score
     localStorage.setItem('gameHighScore', gameState.highScore)
     updateHighScoreUI()
-    alert(`🎉 恭喜创造新记录！摸鱼玩游戏还赚了 ${currency}${earnings.toFixed(2)}，太牛了！`)
+    message = `🎉 新记录！摸鱼赚了 ${currency}${earnings.toFixed(2)}，太牛了！`
   } else {
-    alert(`游戏结束！摸鱼玩游戏还赚了 ${currency}${earnings.toFixed(2)}，再接再厉！`)
+    message = `游戏结束！赚了 ${currency}${earnings.toFixed(2)}，再接再厉！`
   }
 
-  // 重新初始化
-  setTimeout(() => {
-    initCurrentGame()
-  }, 1000)
+  updateGameStatus(message)
+
+  // 游戏结束画面
+  const ctx = gameState.ctx
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
+  ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
+
+  ctx.fillStyle = '#ff4444'
+  ctx.font = 'bold 22px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText('GAME OVER', gameState.canvas.width / 2, 150)
+
+  ctx.fillStyle = '#0f0'
+  ctx.font = '16px monospace'
+  ctx.fillText(message, gameState.canvas.width / 2, 200)
+  ctx.fillText('点击屏幕或按空格重新开始', gameState.canvas.width / 2, 240)
+  ctx.textAlign = 'left'
+
+  // 不需要自动重置，等待用户手动点击开始
 }
 
 // 游戏主循环
@@ -639,7 +659,13 @@ function handleKeyPress(e) {
   if (e.key === ' ') {
     e.preventDefault()
 
-    if (!gameState.isRunning || gameState.isPaused) {
+    if (!gameState.isRunning) {
+      // 游戏结束状态，先重置再开始
+      if (gameState.score > 0) {
+        initCurrentGame()
+      }
+      startGame()
+    } else if (gameState.isPaused) {
       startGame()
     } else {
       jump()
@@ -652,7 +678,13 @@ function handleTouchStart(e) {
   e.preventDefault()
   touchState.isTouched = true
 
-  if (!gameState.isRunning || gameState.isPaused) {
+  if (!gameState.isRunning) {
+    // 游戏结束状态，先重置再开始
+    if (gameState.score > 0) {
+      initCurrentGame()
+    }
+    startGame()
+  } else if (gameState.isPaused) {
     startGame()
   } else {
     jump()
