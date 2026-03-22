@@ -125,18 +125,35 @@ function drawStartScreen() {
   ctx.fillStyle = '#0f0'
   ctx.fillRect(0, gameState.groundY, gameState.canvas.width, 2)
 
-  // 画玩家
-  ctx.font = '30px monospace'
-  ctx.fillText('👨‍💻', gameState.player.x, gameState.player.y + 35)
+  // 背景网格
+  ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)'
+  ctx.lineWidth = 1
+  for (let i = 0; i < gameState.canvas.width; i += 40) {
+    ctx.beginPath()
+    ctx.moveTo(i, 0)
+    ctx.lineTo(i, gameState.groundY)
+    ctx.stroke()
+  }
 
-  // 画提示文字
+  // 画玩家
+  drawPlayer(gameState.player.x, gameState.player.y, false)
+
+  // 画像素风格标题
   ctx.fillStyle = '#0f0'
-  ctx.font = '18px monospace'
+  ctx.font = 'bold 20px monospace'
   ctx.textAlign = 'center'
   ctx.fillText('🏃‍♂️ 摸鱼赚钱', gameState.canvas.width / 2, 100)
+
+  ctx.fillStyle = '#0f0'
   ctx.font = '14px monospace'
   ctx.fillText('跳过工作障碍，摸鱼也能算工资！', gameState.canvas.width / 2, 140)
-  ctx.fillText('按空格/点击屏幕跳跃', gameState.canvas.width / 2, 170)
+  ctx.fillText('按空格/点击屏幕开始', gameState.canvas.width / 2, 170)
+
+  // 画几个预览的障碍物
+  drawObstacle({ x: 70, y: gameState.groundY - 35, type: { name: '需求文档' } })
+  drawObstacle({ x: 180, y: gameState.groundY - 30, type: { name: 'Bug' } })
+  drawItem({ x: 290, y: gameState.groundY - 30, type: { name: '咖啡' } })
+
   ctx.textAlign = 'left'
 }
 
@@ -393,6 +410,175 @@ function jump() {
   }
 }
 
+// 绘制像素玩家
+function drawPlayer(x, y, isInvincible) {
+  const ctx = gameState.ctx
+
+  if (isInvincible) {
+    // 无敌光圈
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.6)'
+    ctx.beginPath()
+    ctx.arc(x + 15, y + 20, 25, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  // 头部
+  ctx.fillStyle = '#ffdbac'
+  ctx.fillRect(x + 7, y, 16, 16)
+
+  // 头发
+  ctx.fillStyle = '#2d2d2d'
+  ctx.fillRect(x + 7, y, 16, 6)
+  ctx.fillRect(x + 5, y + 4, 4, 4)
+  ctx.fillRect(x + 21, y + 4, 4, 4)
+
+  // 眼镜
+  ctx.fillStyle = '#333'
+  ctx.fillRect(x + 8, y + 6, 5, 3)
+  ctx.fillRect(x + 17, y + 6, 5, 3)
+  ctx.fillRect(x + 14, y + 7, 2, 1)
+
+  // 身体（格子衫）
+  ctx.fillStyle = '#2563eb'
+  ctx.fillRect(x + 5, y + 16, 20, 18)
+  ctx.fillStyle = '#1e40af'
+  for (let i = 0; i < 4; i++) {
+    ctx.fillRect(x + 5 + i * 5, y + 16, 2, 18)
+  }
+  for (let i = 0; i < 3; i++) {
+    ctx.fillRect(x + 5, y + 16 + i * 6, 20, 2)
+  }
+
+  // 裤子
+  ctx.fillStyle = '#1e3a8a'
+  ctx.fillRect(x + 8, y + 34, 6, 6)
+  ctx.fillRect(x + 16, y + 34, 6, 6)
+}
+
+// 绘制障碍物
+function drawObstacle(obstacle) {
+  const ctx = gameState.ctx
+  const x = obstacle.x
+  const y = obstacle.y
+  const type = obstacle.type.name
+
+  if (type === '需求文档') {
+    // 文档
+    ctx.fillStyle = '#f472b6'
+    ctx.fillRect(x, y + 5, 30, 30)
+    ctx.fillStyle = '#f9a8d4'
+    ctx.fillRect(x + 3, y + 8, 24, 3)
+    ctx.fillRect(x + 3, y + 13, 18, 2)
+    ctx.fillRect(x + 3, y + 17, 22, 2)
+    ctx.fillRect(x + 3, y + 21, 20, 2)
+    // 折角
+    ctx.fillStyle = '#db2777'
+    ctx.beginPath()
+    ctx.moveTo(x + 30, y + 5)
+    ctx.lineTo(x + 30, y + 15)
+    ctx.lineTo(x + 20, y + 5)
+    ctx.fill()
+  } else if (type === 'Bug') {
+    // 虫子
+    ctx.fillStyle = '#16a34a'
+    // 身体
+    ctx.fillRect(x + 8, y + 10, 14, 14)
+    // 头
+    ctx.fillRect(x + 13, y + 5, 4, 6)
+    // 腿
+    ctx.fillRect(x + 4, y + 12, 3, 2)
+    ctx.fillRect(x + 4, y + 16, 3, 2)
+    ctx.fillRect(x + 4, y + 20, 3, 2)
+    ctx.fillRect(x + 23, y + 12, 3, 2)
+    ctx.fillRect(x + 23, y + 16, 3, 2)
+    ctx.fillRect(x + 23, y + 20, 3, 2)
+    // 触角
+    ctx.fillRect(x + 14, y, 1, 4)
+    ctx.fillRect(x + 15, y + 1, 1, 3)
+  } else if (type === '加班通知') {
+    // 警报
+    ctx.fillStyle = '#dc2626'
+    // 灯体
+    ctx.fillRect(x + 10, y + 5, 15, 20)
+    // 顶
+    ctx.fillRect(x + 13, y, 9, 5)
+    // 光
+    ctx.fillStyle = '#fca5a5'
+    ctx.fillRect(x + 13, y + 8, 9, 6)
+    // 底座
+    ctx.fillStyle = '#991b1b'
+    ctx.fillRect(x + 7, y + 25, 21, 3)
+  } else if (type === '老板来电') {
+    // 手机
+    ctx.fillStyle = '#262626'
+    ctx.fillRect(x + 5, y + 2, 20, 33)
+    // 屏幕
+    ctx.fillStyle = '#404040'
+    ctx.fillRect(x + 7, y + 4, 16, 25)
+    // 来电显示
+    ctx.fillStyle = '#ef4444'
+    ctx.font = '8px monospace'
+    ctx.fillText('BOSS', x + 9, y + 14)
+    //  home键
+    ctx.fillStyle = '#525252'
+    ctx.fillRect(x + 13, y + 30, 4, 2)
+  }
+}
+
+// 绘制道具
+function drawItem(item) {
+  const ctx = gameState.ctx
+  const x = item.x
+  const y = item.y
+  const type = item.type.name
+
+  if (type === '咖啡') {
+    // 咖啡杯
+    ctx.fillStyle = '#78350f'
+    ctx.fillRect(x + 4, y + 5, 18, 20)
+    // 杯口
+    ctx.fillStyle = '#d97706'
+    ctx.fillRect(x + 2, y + 3, 22, 3)
+    // 把手
+    ctx.fillStyle = '#92400e'
+    ctx.fillRect(x + 22, y + 8, 5, 10)
+    ctx.fillRect(x + 24, y + 10, 3, 6)
+    // 热气
+    ctx.fillStyle = 'rgba(209, 213, 219, 0.6)'
+    ctx.fillRect(x + 7, y, 2, 3)
+    ctx.fillRect(x + 12, y - 2, 2, 4)
+    ctx.fillRect(x + 17, y, 2, 3)
+  } else if (type === '鸡腿') {
+    // 鸡腿
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.arc(x + 20, y + 15, 10, 0, Math.PI * 2)
+    ctx.fill()
+    // 骨头
+    ctx.fillStyle = '#f5f5f4'
+    ctx.fillRect(x + 5, y + 13, 10, 4)
+    ctx.fillRect(x + 3, y + 11, 3, 2)
+    ctx.fillRect(x + 3, y + 17, 3, 2)
+  } else if (type === '奖金') {
+    // 钱袋
+    ctx.fillStyle = '#fbbf24'
+    ctx.beginPath()
+    ctx.moveTo(x + 5, y + 8)
+    ctx.lineTo(x + 25, y + 8)
+    ctx.quadraticCurveTo(x + 28, y + 18, x + 22, y + 28)
+    ctx.lineTo(x + 8, y + 28)
+    ctx.quadraticCurveTo(x + 2, y + 18, x + 5, y + 8)
+    ctx.fill()
+    // 袋口
+    ctx.fillStyle = '#d97706'
+    ctx.fillRect(x + 7, y + 5, 16, 4)
+    // 金币符号
+    ctx.fillStyle = '#92400e'
+    ctx.font = '12px monospace'
+    ctx.fillText('$', x + 12, y + 20)
+  }
+}
+
 // 绘制游戏画面
 function drawGame() {
   const ctx = gameState.ctx
@@ -404,39 +590,47 @@ function drawGame() {
   ctx.fillStyle = '#0f0'
   ctx.fillRect(0, gameState.groundY, gameState.canvas.width, 2)
 
+  // 背景网格
+  ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)'
+  ctx.lineWidth = 1
+  for (let i = 0; i < gameState.canvas.width; i += 40) {
+    ctx.beginPath()
+    ctx.moveTo(i, 0)
+    ctx.lineTo(i, gameState.groundY)
+    ctx.stroke()
+  }
+
   // 画无敌效果闪光
   if (gameState.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.1)'
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.2)'
     ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
   }
 
   // 画障碍物
-  ctx.font = '30px monospace'
   gameState.obstacles.forEach(obstacle => {
-    ctx.fillText(obstacle.type.emoji, obstacle.x, obstacle.y + obstacle.height)
+    drawObstacle(obstacle)
   })
 
   // 画道具
   gameState.items.forEach(item => {
-    ctx.fillText(item.type.emoji, item.x, item.y + item.height)
+    drawItem(item)
   })
 
   // 画玩家
-  const playerEmoji = gameState.invincible ? '🌟' : '👨‍💻'
-  ctx.fillText(playerEmoji, gameState.player.x, gameState.player.y + gameState.player.height + 5)
+  drawPlayer(gameState.player.x, gameState.player.y, gameState.invincible)
 
   // 画无敌时间提示
   if (gameState.invincible) {
-    ctx.fillStyle = '#0f0'
+    ctx.fillStyle = '#fbbf24'
     ctx.font = '14px monospace'
-    ctx.fillText(`无敌：${Math.ceil(gameState.invincibleTime / 1000)}s`, 10, 30)
+    ctx.fillText(`✨ 无敌：${Math.ceil(gameState.invincibleTime / 1000)}s`, 10, 30)
   }
 
   // 画速度提示
   ctx.fillStyle = '#0f0'
   ctx.font = '14px monospace'
   ctx.textAlign = 'right'
-  ctx.fillText(`速度：${gameState.speed.toFixed(1)}x`, gameState.canvas.width - 10, 30)
+  ctx.fillText(`⚡ 速度：${gameState.speed.toFixed(1)}x`, gameState.canvas.width - 10, 30)
   ctx.textAlign = 'left'
 }
 
