@@ -646,6 +646,22 @@ function drawGame() {
     ctx.fillText(`✨ 无敌：${Math.ceil(gameState.invincibleTime / 1000)}s`, 10, 30)
   }
 
+  // 画工资进度条
+  const dailySalary = window.config ? window.config.dailySalary || 300 : 300
+  const currentEarnings = calculateGameEarnings(gameState.score)
+  const progressPercent = Math.min(100, (currentEarnings / dailySalary) * 100)
+
+  ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'
+  ctx.fillRect(10, 40, gameState.canvas.width - 20, 8)
+  ctx.fillStyle = '#0f0'
+  ctx.fillRect(10, 40, (gameState.canvas.width - 20) * (progressPercent / 100), 8)
+
+  ctx.fillStyle = '#0f0'
+  ctx.font = '12px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText(`今日工资进度：${progressPercent.toFixed(1)}%`, gameState.canvas.width / 2, 65)
+  ctx.textAlign = 'left'
+
   // 画速度提示
   ctx.fillStyle = '#0f0'
   ctx.font = '14px monospace'
