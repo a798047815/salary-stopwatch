@@ -1,8 +1,17 @@
+// 计算游戏收益
+function calculateGameEarnings(seconds) {
+  // 从全局配置读取日薪
+  const dailySalary = window.config ? window.config.dailySalary || 300 : 300
+  const workHoursPerDay = 8 // 每天工作8小时
+  const earningsPerSecond = dailySalary / (workHoursPerDay * 3600)
+  return seconds * earningsPerSecond
+}
+
 // 游戏全局状态
 const gameState = {
   isRunning: false,
   isPaused: false,
-  score: 0,
+  score: 0, // 游戏时长（秒）
   highScore: localStorage.getItem('gameHighScore') || 0,
   timer: null,
   speed: 6,
@@ -41,9 +50,9 @@ const gameState = {
 
   // 道具类型
   itemTypes: [
-    { emoji: '☕', name: '咖啡', width: 25, height: 30, effect: 'score+50' },
-    { emoji: '🍗', name: '鸡腿', width: 30, height: 30, effect: 'invincible' },
-    { emoji: '💰', name: '工资', width: 30, height: 30, effect: 'score+100' }
+    { emoji: '☕', name: '咖啡', width: 25, height: 30, effect: 'earn+10' }, // 额外赚10块
+    { emoji: '🍗', name: '鸡腿', width: 30, height: 30, effect: 'invincible' }, // 无敌
+    { emoji: '💰', name: '奖金', width: 30, height: 30, effect: 'earn+50' } // 额外赚50块
   ],
 
   // 特效
@@ -124,9 +133,9 @@ function drawStartScreen() {
   ctx.fillStyle = '#0f0'
   ctx.font = '18px monospace'
   ctx.textAlign = 'center'
-  ctx.fillText('🏃‍♂️ 社畜跑酷', gameState.canvas.width / 2, 100)
+  ctx.fillText('🏃‍♂️ 摸鱼赚钱', gameState.canvas.width / 2, 100)
   ctx.font = '14px monospace'
-  ctx.fillText('跳过工作障碍，坚持越久赚得越多！', gameState.canvas.width / 2, 140)
+  ctx.fillText('跳过工作障碍，摸鱼也能算工资！', gameState.canvas.width / 2, 140)
   ctx.fillText('按空格/点击屏幕跳跃', gameState.canvas.width / 2, 170)
   ctx.textAlign = 'left'
 }
@@ -199,13 +208,15 @@ function gameOver() {
   updateGameStatus(`游戏结束！得分：${gameState.score}`)
 
   // 保存最高记录
+  const earnings = calculateGameEarnings(gameState.score)
+  const currency = window.config ? window.config.currency || '¥' : '¥'
   if (gameState.score > gameState.highScore) {
     gameState.highScore = gameState.score
     localStorage.setItem('gameHighScore', gameState.highScore)
     updateHighScoreUI()
-    alert(`🎉 恭喜创造新记录！你坚持了 ${gameState.score} 秒，太牛了！`)
+    alert(`🎉 恭喜创造新记录！摸鱼玩游戏还赚了 ${currency}${earnings.toFixed(2)}，太牛了！`)
   } else {
-    alert(`游戏结束！你坚持了 ${gameState.score} 秒，再接再厉！`)
+    alert(`游戏结束！摸鱼玩游戏还赚了 ${currency}${earnings.toFixed(2)}，再接再厉！`)
   }
 
   // 重新初始化
@@ -345,11 +356,18 @@ function spawnItem() {
 // 应用道具效果
 function applyItemEffect(item) {
   switch (item.type.effect) {
-    case 'score+50':
-      gameState.score += 50
+    case 'earn+10':
+      // 10块钱相当于多少秒工作时长
+      const dailySalary = window.config ? window.config.dailySalary || 300 : 300
+      const workHoursPerDay = 8
+      const secondsPerYuan = (workHoursPerDay * 3600) / dailySalary
+      gameState.score += 10 * secondsPerYuan
       break
-    case 'score+100':
-      gameState.score += 100
+    case 'earn+50':
+      const dailySalary2 = window.config ? window.config.dailySalary || 300 : 300
+      const workHoursPerDay2 = 8
+      const secondsPerYuan2 = (workHoursPerDay2 * 3600) / dailySalary2
+      gameState.score += 50 * secondsPerYuan2
       break
     case 'invincible':
       gameState.invincible = true
@@ -462,11 +480,15 @@ function switchGame(gameName) {
 // UI更新工具方法
 // ------------------------------
 function updateScoreUI() {
-  document.getElementById('gameScore').textContent = Math.floor(gameState.score)
+  const currency = window.config ? window.config.currency || '¥' : '¥'
+  const earnings = calculateGameEarnings(gameState.score)
+  document.getElementById('gameScore').textContent = `${currency}${earnings.toFixed(2)}`
 }
 
 function updateHighScoreUI() {
-  document.getElementById('gameHighScore').textContent = Math.floor(gameState.highScore)
+  const currency = window.config ? window.config.currency || '¥' : '¥'
+  const earnings = calculateGameEarnings(gameState.highScore)
+  document.getElementById('gameHighScore').textContent = `${currency}${earnings.toFixed(2)}`
 }
 
 function updateGameStatus(status) {
