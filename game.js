@@ -163,6 +163,12 @@ function drawStartScreen() {
 function startGame() {
   if (gameState.isRunning && !gameState.isPaused) return
 
+  if (gameState.isGameOver) {
+    // 游戏结束状态先回到开始界面
+    initCurrentGame()
+    return
+  }
+
   if (gameState.isPaused) {
     gameState.isPaused = false
     updateGameStatus('游戏中')
@@ -170,11 +176,6 @@ function startGame() {
     document.getElementById('gamePauseBtn').style.display = 'inline-block'
     runGameLoop()
     return
-  }
-
-  // 游戏结束后重新开始，先重置
-  if (gameState.score > 0) {
-    initCurrentGame()
   }
 
   gameState.isRunning = true
@@ -264,7 +265,7 @@ function gameOver() {
   ctx.fillStyle = '#0f0'
   ctx.font = '16px monospace'
   ctx.fillText(message, gameState.canvas.width / 2, 200)
-  ctx.fillText('点击屏幕或按空格重新开始', gameState.canvas.width / 2, 240)
+  ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 240)
   ctx.textAlign = 'left'
 
   // 不需要自动重置，等待用户手动点击开始
@@ -683,11 +684,13 @@ function handleKeyPress(e) {
   if (e.key === ' ') {
     e.preventDefault()
 
+    if (gameState.isGameOver) {
+      // 游戏结束状态，点击先回到开始界面，不要直接开玩
+      initCurrentGame()
+      return
+    }
+
     if (!gameState.isRunning) {
-      // 游戏结束状态，先重置再开始
-      if (gameState.score > 0) {
-        initCurrentGame()
-      }
       startGame()
     } else if (gameState.isPaused) {
       startGame()
@@ -702,11 +705,13 @@ function handleTouchStart(e) {
   e.preventDefault()
   touchState.isTouched = true
 
+  if (gameState.isGameOver) {
+    // 游戏结束状态，点击先回到开始界面，不要直接开玩
+    initCurrentGame()
+    return
+  }
+
   if (!gameState.isRunning) {
-    // 游戏结束状态，先重置再开始
-    if (gameState.score > 0) {
-      initCurrentGame()
-    }
     startGame()
   } else if (gameState.isPaused) {
     startGame()
