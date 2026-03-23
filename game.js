@@ -11,6 +11,7 @@ function calculateGameEarnings(seconds) {
 const gameState = {
   isRunning: false,
   isPaused: false,
+  isGameOver: false, // 游戏结束标志
   score: 0, // 游戏时长（秒）
   highScore: localStorage.getItem('gameHighScore') || 0,
   timer: null,
@@ -90,6 +91,7 @@ function initGame() {
 // 初始化当前游戏
 function initCurrentGame() {
   stopGame()
+  gameState.isGameOver = false // 重置游戏结束标志
 
   // 重置状态
   gameState.player = {
@@ -226,7 +228,10 @@ function stopGame() {
 
 // 游戏结束
 function gameOver() {
+  if (gameState.isGameOver) return // 避免重复触发
+
   stopGame()
+  gameState.isGameOver = true // 标记游戏结束
 
   // 保存最高记录
   const earnings = calculateGameEarnings(gameState.score)
@@ -245,11 +250,11 @@ function gameOver() {
 
   // 游戏结束画面
   const ctx = gameState.ctx
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'
   ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
 
   ctx.fillStyle = '#ff4444'
-  ctx.font = 'bold 22px monospace'
+  ctx.font = 'bold 28px monospace'
   ctx.textAlign = 'center'
   ctx.fillText('GAME OVER', gameState.canvas.width / 2, 150)
 
@@ -269,7 +274,7 @@ function runGameLoop() {
   }
 
   gameState.timer = setInterval(() => {
-    if (!gameState.isRunning || gameState.isPaused) return
+    if (!gameState.isRunning || gameState.isPaused || gameState.isGameOver) return
 
     updateGame()
     drawGame()
