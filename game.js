@@ -270,22 +270,26 @@ function runGameLoop() {
     if (gameState.status !== 'playing') return
 
     updateGame()
-    drawGame()
 
-    // 每秒分数+1
-    gameState.score += 1/60
-    updateScoreUI()
+    // 检查updateGame后是否还是playing状态，避免碰撞后覆盖结算界面
+    if (gameState.status === 'playing') {
+      drawGame()
 
-    // 每隔10秒加速
-    if (Math.floor(gameState.score) % 10 === 0 && Math.floor(gameState.score) > 0) {
-      gameState.speed = Math.min(15, 6 + Math.floor(gameState.score / 10))
-    }
+      // 每秒分数+1
+      gameState.score += 1/60
+      updateScoreUI()
 
-    // 无敌时间倒计时
-    if (gameState.invincible) {
-      gameState.invincibleTime -= 16.67 // 16.67ms per frame
-      if (gameState.invincibleTime <= 0) {
-        gameState.invincible = false
+      // 每隔10秒加速
+      if (Math.floor(gameState.score) % 10 === 0 && Math.floor(gameState.score) > 0) {
+        gameState.speed = Math.min(15, 6 + Math.floor(gameState.score / 10))
+      }
+
+      // 无敌时间倒计时
+      if (gameState.invincible) {
+        gameState.invincibleTime -= 16.67 // 16.67ms per frame
+        if (gameState.invincibleTime <= 0) {
+          gameState.invincible = false
+        }
       }
     }
   }, 16.67) // 60fps
