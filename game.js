@@ -233,6 +233,9 @@ function gameOver() {
   stopGame()
   gameState.isGameOver = true // 标记游戏结束
 
+  // 强制更新最终收益UI，立刻显示赚了多少钱
+  updateScoreUI()
+
   // 保存最高记录
   const earnings = calculateGameEarnings(gameState.score)
   const currency = window.config ? window.config.currency || '¥' : '¥'
