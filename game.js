@@ -9,9 +9,8 @@ function calculateGameEarnings(seconds) {
 
 // 游戏全局状态
 const gameState = {
-  isRunning: false,
-  isPaused: false,
-  isGameOver: false, // 游戏结束标志
+  // 状态枚举: 'idle'(开始界面), 'playing'(游戏中), 'paused'(暂停), 'gameover'(结束)
+  status: 'idle',
   score: 0, // 游戏时长（秒）
   highScore: localStorage.getItem('gameHighScore') || 0,
   timer: null,
@@ -91,7 +90,7 @@ function initGame() {
 // 初始化当前游戏
 function initCurrentGame() {
   stopGame()
-  gameState.isGameOver = false // 重置游戏结束标志
+  gameState.status = 'idle' // 重置为开始界面状态
 
   // 重置状态
   gameState.player = {
@@ -161,16 +160,10 @@ function drawStartScreen() {
 
 // 开始游戏
 function startGame() {
-  if (gameState.isRunning && !gameState.isPaused) return
+  if (gameState.status === 'playing') return
 
-  if (gameState.isGameOver) {
-    // 游戏结束状态先回到开始界面
-    initCurrentGame()
-    return
-  }
-
-  if (gameState.isPaused) {
-    gameState.isPaused = false
+  if (gameState.status === 'paused') {
+    gameState.status = 'playing'
     updateGameStatus('游戏中')
     document.getElementById('gameStartBtn').style.display = 'none'
     document.getElementById('gamePauseBtn').style.display = 'inline-block'
@@ -178,8 +171,7 @@ function startGame() {
     return
   }
 
-  gameState.isRunning = true
-  gameState.isPaused = false
+  gameState.status = 'playing'
   gameState.score = 0
   updateScoreUI()
   updateGameStatus('游戏中')
@@ -192,9 +184,9 @@ function startGame() {
 
 // 暂停游戏
 function pauseGame() {
-  if (!gameState.isRunning || gameState.isPaused) return
+  if (gameState.status !== 'playing') return
 
-  gameState.isPaused = true
+  gameState.status = 'paused'
   updateGameStatus('已暂停')
 
   document.getElementById('gameStartBtn').style.display = 'inline-block'
@@ -208,9 +200,6 @@ function pauseGame() {
 
 // 停止游戏
 function stopGame() {
-  gameState.isRunning = false
-  gameState.isPaused = false
-
   if (gameState.timer) {
     clearInterval(gameState.timer)
     gameState.timer = null
@@ -229,10 +218,10 @@ function stopGame() {
 
 // 游戏结束
 function gameOver() {
-  if (gameState.isGameOver) return // 避免重复触发
+  if (gameState.status === 'gameover') return // 避免重复触发
 
   stopGame()
-  gameState.isGameOver = true // 标记游戏结束
+  gameState.status = 'gameover' // 标记游戏结束
 
   // 强制更新最终收益UI，立刻显示赚了多少钱
   updateScoreUI()
@@ -252,7 +241,7 @@ function gameOver() {
 
   updateGameStatus(message)
 
-  // 游戏结束画面
+  // 立刻渲染游戏结束画面
   const ctx = gameState.ctx
   ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'
   ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
@@ -268,7 +257,7 @@ function gameOver() {
   ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 240)
   ctx.textAlign = 'left'
 
-  // 不需要自动重置，等待用户手动点击开始
+  // 不需要自动重置，等待用户手动点击
 }
 
 // 游戏主循环
@@ -278,7 +267,7 @@ function runGameLoop() {
   }
 
   gameState.timer = setInterval(() => {
-    if (!gameState.isRunning || gameState.isPaused || gameState.isGameOver) return
+    if (gameState.status !== 'playing') return
 
     updateGame()
     drawGame()
@@ -684,18 +673,23 @@ function handleKeyPress(e) {
   if (e.key === ' ') {
     e.preventDefault()
 
-    if (gameState.isGameOver) {
-      // 游戏结束状态，点击先回到开始界面，不要直接开玩
-      initCurrentGame()
-      return
-    }
-
-    if (!gameState.isRunning) {
-      startGame()
-    } else if (gameState.isPaused) {
-      startGame()
-    } else {
-      jump()
+    switch(gameState.status) {
+      case 'gameover':
+        // 游戏结束状态，点击回到开始界面
+        initCurrentGame()
+        break
+      case 'idle':
+        // 开始界面，点击开始游戏
+        startGame()
+        break
+      case 'paused':
+        // 暂停状态，继续游戏
+        startGame()
+        break
+      case 'playing':
+        // 游戏中，跳跃
+        jump()
+        break
     }
   }
 }
@@ -705,18 +699,23 @@ function handleTouchStart(e) {
   e.preventDefault()
   touchState.isTouched = true
 
-  if (gameState.isGameOver) {
-    // 游戏结束状态，点击先回到开始界面，不要直接开玩
-    initCurrentGame()
-    return
-  }
-
-  if (!gameState.isRunning) {
-    startGame()
-  } else if (gameState.isPaused) {
-    startGame()
-  } else {
-    jump()
+  switch(gameState.status) {
+    case 'gameover':
+      // 游戏结束状态，点击回到开始界面
+      initCurrentGame()
+      break
+    case 'idle':
+      // 开始界面，点击开始游戏
+      startGame()
+      break
+    case 'paused':
+      // 暂停状态，继续游戏
+      startGame()
+      break
+    case 'playing':
+      // 游戏中，跳跃
+      jump()
+      break
   }
 }
 
