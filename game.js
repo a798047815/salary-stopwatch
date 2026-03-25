@@ -14,7 +14,7 @@ const gameState = {
   score: 0, // 游戏时长（秒）
   highScore: localStorage.getItem('gameHighScore') || 0,
   timer: null,
-  speed: 6,
+  speed: 4, // 初始速度降低，更易上手
   canvas: null,
   ctx: null,
   gravity: 0.5,
@@ -32,7 +32,7 @@ const gameState = {
 
   // 障碍物
   obstacles: [],
-  obstacleSpawnRate: 1500, // 毫秒生成一个
+  obstacleSpawnRate: 2000, // 初始生成频率降低，更易上手
   lastObstacleSpawn: 0,
 
   // 道具
@@ -58,13 +58,29 @@ const gameState = {
   // 特效
   invincible: false,
   invincibleTime: 0,
-  groundY: 380
+  groundY: 380,
+
+  // 跳跃优化
+  isJumpingPressed: false,
+  maxJumpHoldTime: 300, // 最长按住跳跃时间
+  jumpHoldTime: 0, // 当前按住时间
+
+  // 背景滚动
+  backgroundOffset: 0,
+
+  // 统计数据
+  obstaclesJumped: 0,
+  itemsCollected: 0
 }
 
 // 触摸状态
 const touchState = {
-  isTouched: false
+  isTouched: false,
+  touchStartTime: 0
 }
+
+// 粒子效果
+const particles = []
 
 // 游戏初始化
 function initGame() {
@@ -77,7 +93,8 @@ function initGame() {
   updateHighScoreUI()
 
   // 绑定键盘事件
-  window.addEventListener('keydown', handleKeyPress)
+  window.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('keyup', handleKeyUp)
 
   // 绑定触摸事件
   gameState.canvas.addEventListener('touchstart', handleTouchStart, { passive: false })
@@ -109,6 +126,12 @@ function initCurrentGame() {
   gameState.invincibleTime = 0
   gameState.lastObstacleSpawn = 0
   gameState.lastItemSpawn = 0
+  gameState.backgroundOffset = 0
+  gameState.obstaclesJumped = 0
+  gameState.itemsCollected = 0
+  gameState.isJumpingPressed = false
+  gameState.jumpHoldTime = 0
+  particles.length = 0 // 清空粒子
 
   // 绘制初始画面
   drawStartScreen()
@@ -129,7 +152,8 @@ function drawStartScreen() {
   // 背景网格
   ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)'
   ctx.lineWidth = 1
-  for (let i = 0; i < gameState.canvas.width; i += 40) {
+  const offset = arguments[0] === true ? gameState.backgroundOffset : 0
+  for (let i = -offset; i < gameState.canvas.width; i += 40) {
     ctx.beginPath()
     ctx.moveTo(i, 0)
     ctx.lineTo(i, gameState.groundY)
@@ -223,6 +247,19 @@ function gameOver() {
   stopGame()
   gameState.status = 'gameover' // 标记游戏结束
 
+  // 碰撞爆炸特效
+  for (let i = 0; i < 15; i++) {
+    particles.push({
+      x: gameState.player.x + 15,
+      y: gameState.player.y + 20,
+      velX: (Math.random() - 0.5) * 8,
+      velY: (Math.random() - 0.5) * 8,
+      life: 40,
+      maxLife: 40,
+      color: '#ff4444'
+    })
+  }
+
   // 强制更新最终收益UI，立刻显示赚了多少钱
   updateScoreUI()
 
@@ -254,7 +291,17 @@ function gameOver() {
   ctx.fillStyle = '#0f0'
   ctx.font = '16px monospace'
   ctx.fillText(message, gameState.canvas.width / 2, 200)
-  ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 240)
+
+  // 详细统计
+  ctx.fillStyle = '#fff'
+  ctx.font = '14px monospace'
+  ctx.fillText(`跳过障碍: ${gameState.obstaclesJumped} 个`, gameState.canvas.width / 2, 240)
+  ctx.fillText(`收集道具: ${gameState.itemsCollected} 个`, gameState.canvas.width / 2, 265)
+  ctx.fillText(`游戏时长: ${Math.floor(gameState.score)} 秒`, gameState.canvas.width / 2, 290)
+
+  ctx.fillStyle = '#0f0'
+  ctx.font = '14px monospace'
+  ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 330)
   ctx.textAlign = 'left'
 
   // 不需要自动重置，等待用户手动点击
@@ -279,9 +326,9 @@ function runGameLoop() {
       gameState.score += 1/60
       updateScoreUI()
 
-      // 每隔10秒加速
-      if (Math.floor(gameState.score) % 10 === 0 && Math.floor(gameState.score) > 0) {
-        gameState.speed = Math.min(15, 6 + Math.floor(gameState.score / 10))
+      // 每隔15秒加速，难度提升更平缓
+      if (Math.floor(gameState.score) % 15 === 0 && Math.floor(gameState.score) > 0) {
+        gameState.speed = Math.min(12, 4 + Math.floor(gameState.score / 15))
       }
 
       // 无敌时间倒计时
@@ -301,21 +348,50 @@ function updateGame() {
 
   // 玩家重力
   gameState.player.velY += gameState.gravity
+
+  // 长按跳跃更高
+  if (gameState.isJumpingPressed && gameState.jumpHoldTime < gameState.maxJumpHoldTime && gameState.player.velY < 0) {
+    gameState.player.velY -= 0.2 // 额外上升力
+    gameState.jumpHoldTime += 16.67
+  }
+
   gameState.player.y += gameState.player.velY
 
   // 地面碰撞
   if (gameState.player.y >= gameState.groundY - gameState.player.height) {
+    const wasJumping = gameState.player.isJumping
     gameState.player.y = gameState.groundY - gameState.player.height
     gameState.player.velY = 0
     gameState.player.isJumping = false
+
+    // 落地灰尘特效
+    if (wasJumping) {
+      for (let i = 0; i < 3; i++) {
+        particles.push({
+          x: gameState.player.x + 15,
+          y: gameState.groundY,
+          velX: (Math.random() - 0.5) * 3,
+          velY: Math.random() * -2,
+          life: 15,
+          maxLife: 15,
+          color: '#666'
+        })
+      }
+    }
+  }
+
+  // 背景滚动
+  gameState.backgroundOffset += gameState.speed * 0.5
+  if (gameState.backgroundOffset >= 40) {
+    gameState.backgroundOffset = 0
   }
 
   // 生成障碍物
   if (now - gameState.lastObstacleSpawn > gameState.obstacleSpawnRate) {
     spawnObstacle()
     gameState.lastObstacleSpawn = now
-    // 随难度调整生成频率
-    gameState.obstacleSpawnRate = Math.max(800, 1500 - Math.floor(gameState.score / 20) * 100)
+    // 随难度调整生成频率，降低更平缓
+    gameState.obstacleSpawnRate = Math.max(1000, 2000 - Math.floor(gameState.score / 30) * 100)
   }
 
   // 生成道具
@@ -327,6 +403,11 @@ function updateGame() {
   // 更新障碍物位置
   gameState.obstacles = gameState.obstacles.filter(obstacle => {
     obstacle.x -= gameState.speed
+    // 统计跳过的障碍物
+    if (obstacle.x + obstacle.width < gameState.player.x && !obstacle.counted) {
+      gameState.obstaclesJumped++
+      obstacle.counted = true
+    }
     return obstacle.x > -obstacle.width
   })
 
@@ -351,7 +432,34 @@ function updateGame() {
     const item = gameState.items[i]
     if (checkCollision(gameState.player, item)) {
       applyItemEffect(item)
+      gameState.itemsCollected++
+
+      // 吃道具特效
+      for (let j = 0; j < 8; j++) {
+        particles.push({
+          x: item.x + item.width / 2,
+          y: item.y + item.height / 2,
+          velX: (Math.random() - 0.5) * 6,
+          velY: (Math.random() - 0.5) * 6,
+          life: 30,
+          maxLife: 30,
+          color: '#ffd700'
+        })
+      }
+
       gameState.items.splice(i, 1)
+    }
+  }
+
+  // 更新粒子
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i]
+    p.x += p.velX
+    p.y += p.velY
+    p.velY += 0.1 // 重力
+    p.life--
+    if (p.life <= 0) {
+      particles.splice(i, 1)
     }
   }
 }
@@ -429,6 +537,30 @@ function jump() {
   if (!gameState.player.isJumping && gameState.player.y === gameState.groundY - gameState.player.height) {
     gameState.player.velY = gameState.jumpForce
     gameState.player.isJumping = true
+    gameState.isJumpingPressed = true
+    gameState.jumpHoldTime = 0
+
+    // 跳跃灰尘特效
+    for (let i = 0; i < 5; i++) {
+      particles.push({
+        x: gameState.player.x + 15,
+        y: gameState.groundY,
+        velX: (Math.random() - 0.5) * 4,
+        velY: Math.random() * -3,
+        life: 20,
+        maxLife: 20,
+        color: '#666'
+      })
+    }
+  }
+}
+
+// 跳跃释放
+function jumpRelease() {
+  gameState.isJumpingPressed = false
+  // 松开按键时如果还在上升，提前结束跳跃
+  if (gameState.player.velY < 0) {
+    gameState.player.velY *= 0.5
   }
 }
 
@@ -612,10 +744,10 @@ function drawGame() {
   ctx.fillStyle = '#0f0'
   ctx.fillRect(0, gameState.groundY, gameState.canvas.width, 2)
 
-  // 背景网格
+  // 背景网格（滚动效果）
   ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)'
   ctx.lineWidth = 1
-  for (let i = 0; i < gameState.canvas.width; i += 40) {
+  for (let i = -gameState.backgroundOffset; i < gameState.canvas.width; i += 40) {
     ctx.beginPath()
     ctx.moveTo(i, 0)
     ctx.lineTo(i, gameState.groundY)
@@ -670,10 +802,18 @@ function drawGame() {
   ctx.textAlign = 'right'
   ctx.fillText(`⚡ 速度：${gameState.speed.toFixed(1)}x`, gameState.canvas.width - 10, 30)
   ctx.textAlign = 'left'
+
+  // 绘制粒子
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life / p.maxLife
+    ctx.fillStyle = p.color
+    ctx.fillRect(p.x, p.y, 2, 2)
+  })
+  ctx.globalAlpha = 1
 }
 
-// 键盘事件处理
-function handleKeyPress(e) {
+// 键盘按下事件
+function handleKeyDown(e) {
   if (e.key === ' ') {
     e.preventDefault()
 
@@ -694,6 +834,16 @@ function handleKeyPress(e) {
         // 游戏中，跳跃
         jump()
         break
+    }
+  }
+}
+
+// 键盘松开事件
+function handleKeyUp(e) {
+  if (e.key === ' ') {
+    e.preventDefault()
+    if (gameState.status === 'playing') {
+      jumpRelease()
     }
   }
 }
@@ -727,6 +877,9 @@ function handleTouchStart(e) {
 function handleTouchEnd(e) {
   e.preventDefault()
   touchState.isTouched = false
+  if (gameState.status === 'playing') {
+    jumpRelease()
+  }
 }
 
 // 切换游戏（现在不需要了，保留兼容）
