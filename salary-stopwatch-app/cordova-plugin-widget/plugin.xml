@@ -19,7 +19,6 @@
 
         <source-file src="src/android/SalaryWidget.java" target-dir="src/com/salary/stopwatch" />
         <source-file src="src/android/SalaryWidgetProvider.java" target-dir="src/com/salary/stopwatch" />
-        <source-file src="src/android/SalaryWidgetService.java" target-dir="src/com/salary/stopwatch" />
 
         <resource-file src="src/android/res/xml/widget_info.xml" target="res/xml/widget_info.xml" />
         <resource-file src="src/android/res/layout/widget_layout.xml" target="res/layout/widget_layout.xml" />
@@ -36,10 +35,8 @@
                 </intent-filter>
                 <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info" />
             </receiver>
-
-            <service android:name="com.salary.stopwatch.SalaryWidgetService" android:exported="false" />
         </config-file>
 
-        <preference name="android-minSdkVersion" value="26" />
+        <preference name="android-minSdkVersion" default="26" />
     </platform>
 </plugin>
