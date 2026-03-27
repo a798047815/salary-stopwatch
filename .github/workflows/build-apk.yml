@@ -1,0 +1,78 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ android-app ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: android-app
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './salary-stopwatch-app/package-lock.json'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 build-tools;34.0.0'
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Install dependencies
+        working-directory: ./salary-stopwatch-app
+        run: npm ci
+
+      - name: Add Android platform
+        working-directory: ./salary-stopwatch-app
+        run: |
+          cordova platform rm android || true
+          cordova platform add android@15.0.0
+
+      - name: Install plugins
+        working-directory: ./salary-stopwatch-app
+        run: |
+          cordova plugin rm cordova-plugin-salary-widget || true
+          cordova plugin add cordova-plugin-broadcaster
+          cordova plugin add ./cordova-plugin-widget
+
+      - name: Build Android APK
+        working-directory: ./salary-stopwatch-app
+        run: cordova build android --debug -- --gradleArg=-PcdvMinSdkVersion=26
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: salary-stopwatch-apk
+          path: ./salary-stopwatch-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-build-${{ steps.date.outputs.date }}
+          name: Android Build ${{ steps.date.outputs.date }}
+          files: ./salary-stopwatch-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
