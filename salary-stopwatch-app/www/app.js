@@ -819,45 +819,24 @@ init = function() {
   initHealthReminders()
 }
 
-// Cordova APP适配
-document.addEventListener('deviceready', function() {
+// 初始化
+if (window.cordova) {
+  // Cordova环境，等待设备就绪
+  document.addEventListener('deviceready', () => {
+    init()
+
     // 启用后台运行模式
-    cordova.plugins.backgroundMode.enable();
-    cordova.plugins.backgroundMode.setDefaults({
+    if (window.cordova.plugins.backgroundMode) {
+      window.cordova.plugins.backgroundMode.enable()
+      window.cordova.plugins.backgroundMode.setDefaults({
         title: '赚钱秒表运行中',
-        text: '实时计算你的收入中...',
+        text: '实时计算您的工资收入',
         icon: 'icon',
-        color: '4CAF50',
-        visibility: 'public'
-    });
-
-    // 覆盖原来的通知功能，使用APP本地通知
-    const originalTriggerReminder = triggerReminder;
-    triggerReminder = function(type) {
-        const message = reminderMessages[type];
-
-        // 页面内提醒
-        showToast(message.title, message.body);
-
-        // 本地通知
-        cordova.plugins.notification.local.schedule({
-            title: message.title,
-            text: message.body,
-            foreground: true,
-            sound: true,
-            vibrate: true,
-            priority: 2
-        });
-
-        // 播放提示音
-        playNotificationSound();
+        color: '#4CAF50'
+      })
     }
-
-    // 初始化APP
-    init();
-}, false);
-
-// 浏览器降级兼容
-if (!window.cordova) {
-    window.onload = init;
+  }, false)
+} else {
+  // 浏览器环境
+  window.onload = init
 }
