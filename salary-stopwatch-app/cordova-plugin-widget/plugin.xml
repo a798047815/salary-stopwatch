@@ -26,7 +26,7 @@
         <resource-file src="src/android/res/drawable/ic_play.xml" target="res/drawable/ic_play.xml" />
         <resource-file src="src/android/res/drawable/ic_pause.xml" target="res/drawable/ic_pause.xml" />
 
-        <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge" xmlns:android="http://schemas.android.com/apk/res/android">
+        <config-file target="AndroidManifest.xml" parent="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
             <receiver android:name="com.salary.stopwatch.SalaryWidgetProvider" android:exported="true">
                 <intent-filter>
                     <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -35,7 +35,7 @@
                 </intent-filter>
                 <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info" />
             </receiver>
-        </edit-config>
+        </config-file>
 
         <preference name="android-minSdkVersion" default="26" />
     </platform>
