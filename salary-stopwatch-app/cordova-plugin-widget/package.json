@@ -1,0 +1,21 @@
+{
+  "name": "cordova-plugin-salary-widget",
+  "version": "1.0.0",
+  "description": "赚钱秒表桌面小部件插件",
+  "cordova": {
+    "id": "cordova-plugin-salary-widget",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "cordova",
+    "widget",
+    "appwidget",
+    "salary",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "赚钱秒表开发团队",
+  "license": "MIT"
+}
