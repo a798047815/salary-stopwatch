@@ -656,12 +656,45 @@ body {
   .container {
     padding: 15px 15px 80px 15px;
   }
-  
+
   .amount {
     font-size: 56px;
   }
-  
+
   .action-buttons {
     margin-top: 20px;
+  }
+}
+
+/* ==================== 节假日相关样式 ==================== */
+
+#holidayContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  display: none;
+  animation: fadeIn 0.3s ease-out;
+}
+
+#holidayContainer.show {
+  display: block !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }

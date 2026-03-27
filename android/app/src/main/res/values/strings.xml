@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">赚钱秒表</string>
+    <string name="title_activity_main">赚钱秒表</string>
+    <string name="package_name">com.fishingtoucher.app</string>
+    <string name="custom_url_scheme">com.fishingtoucher.app</string>
+</resources>

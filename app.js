@@ -1,4 +1,129 @@
-// 全局配置
+// ==================== 节假日处理功能 ====================
+
+function isWeekend(date = new Date()) {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+// 2024-2026年中国法定节假日
+const holidays = {
+  2024: [
+    { date: '2024-01-01', name: '元旦' },
+    { date: '2024-02-10', name: '春节' },
+    { date: '2024-02-11', name: '春节' },
+    { date: '2024-02-12', name: '春节' },
+    { date: '2024-02-13', name: '春节' },
+    { date: '2024-02-14', name: '春节' },
+    { date: '2024-04-04', name: '清明节' },
+    { date: '2024-05-01', name: '劳动节' },
+    { date: '2024-06-10', name: '端午节' },
+    { date: '2024-09-15', name: '中秋节' },
+    { date: '2024-10-01', name: '国庆节' },
+    { date: '2024-10-02', name: '国庆节' },
+    { date: '2024-10-03', name: '国庆节' },
+    { date: '2024-10-04', name: '国庆节' },
+    { date: '2024-10-05', name: '国庆节' },
+    { date: '2024-10-06', name: '国庆节' },
+    { date: '2024-10-07', name: '国庆节' }
+  ],
+  2025: [
+    { date: '2025-01-01', name: '元旦' },
+    { date: '2025-01-29', name: '春节' },
+    { date: '2025-01-30', name: '春节' },
+    { date: '2025-01-31', name: '春节' },
+    { date: '2025-02-01', name: '春节' },
+    { date: '2025-02-02', name: '春节' },
+    { date: '2025-04-04', name: '清明节' },
+    { date: '2025-05-01', name: '劳动节' },
+    { date: '2025-05-31', name: '端午节' },
+    { date: '2025-10-06', name: '中秋节' },
+    { date: '2025-10-01', name: '国庆节' },
+    { date: '2025-10-02', name: '国庆节' },
+    { date: '2025-10-03', name: '国庆节' },
+    { date: '2025-10-04', name: '国庆节' },
+    { date: '2025-10-05', name: '国庆节' },
+    { date: '2025-10-06', name: '国庆节' },
+    { date: '2025-10-07', name: '国庆节' },
+    { date: '2025-10-08', name: '国庆节' }
+  ],
+  2026: [
+    { date: '2026-01-01', name: '元旦' },
+    { date: '2026-02-17', name: '春节' },
+    { date: '2026-02-18', name: '春节' },
+    { date: '2026-02-19', name: '春节' },
+    { date: '2026-02-20', name: '春节' },
+    { date: '2026-02-21', name: '春节' },
+    { date: '2026-04-05', name: '清明节' },
+    { date: '2026-05-01', name: '劳动节' },
+    { date: '2026-06-19', name: '端午节' },
+    { date: '2026-09-25', name: '中秋节' },
+    { date: '2026-10-01', name: '国庆节' },
+    { date: '2026-10-02', name: '国庆节' },
+    { date: '2026-10-03', name: '国庆节' },
+    { date: '2026-10-04', name: '国庆节' },
+    { date: '2026-10-05', name: '国庆节' },
+    { date: '2026-10-06', name: '国庆节' },
+    { date: '2026-10-07', name: '国庆节' }
+  ]
+};
+
+function isHoliday(date = new Date()) {
+  const year = date.getFullYear();
+  const dateStr = formatDate(date);
+  const yearHolidays = holidays[year] || [];
+  return yearHolidays.some(holiday => holiday.date === dateStr);
+}
+
+function getHolidayName(date = new Date()) {
+  const year = date.getFullYear();
+  const dateStr = formatDate(date);
+  const yearHolidays = holidays[year] || [];
+  const holiday = yearHolidays.find(hol => hol.date === dateStr);
+  return holiday ? holiday.name : null;
+}
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function updateHolidayUI() {
+  const holidayName = getHolidayName();
+  let displayName = holidayName || '周末';
+
+  const messages = [
+    `🎉 ${displayName}快乐！`,
+    `💰 今天不上班，好好休息吧~`,
+    `🎊 假期模式已开启！`,
+    `🏖️ 享受美好时光！`,
+    `😊 今天不用赚钱啦！`
+  ];
+
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+  // 创建节假日容器（如果不存在）
+  let holidayContainer = document.getElementById('holidayContainer');
+  if (!holidayContainer) {
+    holidayContainer = document.createElement('div');
+    holidayContainer.id = 'holidayContainer';
+    holidayContainer.innerHTML = `
+      <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
+      <div id="holidayMessage" style="font-size: 18px; font-weight: bold;"></div>
+      <button onclick="document.getElementById('holidayContainer').style.display='none'"
+        style="margin-top: 20px; padding: 10px 30px; border: none; border-radius: 25px; background: white; color: #667eea; font-size: 16px; cursor: pointer;">
+        知道啦
+      </button>
+    `;
+    document.body.appendChild(holidayContainer);
+  }
+
+  document.getElementById('holidayMessage').textContent = randomMessage;
+  holidayContainer.style.display = 'block';
+}
+
+// ==================== 全局配置 ====================
 let config = {
   dailySalary: 300,
   workStartTime: '09:00',
@@ -205,7 +330,27 @@ function toggleTimer() {
 }
 
 // 更新收入
+const originalUpdateEarnings = updateEarnings;
 function updateEarnings() {
+  const now = new Date()
+
+  // 检查是否是周末或节假日
+  if (isWeekend(now) || isHoliday(now)) {
+    // 停止计时器
+    if (state.isRunning) {
+      stopTimer()
+    }
+    // 显示节假日信息
+    updateHolidayUI()
+    return
+  }
+
+  // 正常工作时间计算
+  return originalUpdateEarnings.apply(this, arguments)
+}
+
+// ==================== 原updateEarnings函数 ====================
+function originalUpdateEarnings() {
   const now = new Date()
   const currentTime = now.getTime()
   const today = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate()

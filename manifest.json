@@ -2,7 +2,7 @@
   "name": "赚钱秒表",
   "short_name": "赚钱秒表",
   "description": "打工人专属赚钱计时工具，实时计算收入，健康提醒，摸鱼游戏一应俱全",
-  "start_url": "/",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#4CAF50",

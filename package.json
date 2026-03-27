@@ -1,0 +1,29 @@
+{
+  "name": "fishing-toucher",
+  "version": "1.0.0",
+  "description": "A fun fishing-themed game with boss level negotiation",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "mkdir -p dist && cp index.html manifest.json service-worker.js style.css app.js game.js dist/",
+    "cap": "npx cap",
+    "sync": "npx cap sync android"
+  },
+  "keywords": [
+    "game",
+    "fishing",
+    "boss-level",
+    "negotiation",
+    "mobile"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "dependencies": {
+    "@capacitor/local-notifications": "^6.0.1"
+  }
+}

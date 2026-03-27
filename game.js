@@ -70,7 +70,14 @@ const gameState = {
 
   // 统计数据
   obstaclesJumped: 0,
-  itemsCollected: 0
+  itemsCollected: 0,
+
+  // 老板关卡相关
+  boss: null,
+  bossSpawnScore: 30, // 每30秒可能出现老板
+  lastBossSpawnScore: 0,
+  bossStatus: 'none', // 'none', 'approaching', 'meeting'
+  bossMeeting: null
 }
 
 // 触摸状态
@@ -99,6 +106,19 @@ function initGame() {
   // 绑定触摸事件
   gameState.canvas.addEventListener('touchstart', handleTouchStart, { passive: false })
   gameState.canvas.addEventListener('touchend', handleTouchEnd, { passive: false })
+
+  // 绑定鼠标点击事件
+  gameState.canvas.addEventListener('click', handleMouseClick)
+  gameState.canvas.addEventListener('mousedown', () => {
+    if (gameState.status === 'playing') {
+      jump()
+    }
+  })
+  gameState.canvas.addEventListener('mouseup', () => {
+    if (gameState.status === 'playing') {
+      jumpRelease()
+    }
+  })
 
   // 初始化游戏
   initCurrentGame()
@@ -173,6 +193,10 @@ function drawStartScreen() {
   ctx.font = '14px monospace'
   ctx.fillText('跳过工作障碍，摸鱼也能算工资！', gameState.canvas.width / 2, 140)
   ctx.fillText('按空格/点击屏幕开始', gameState.canvas.width / 2, 170)
+
+  // 新提示：老板关卡
+  ctx.fillStyle = '#fbbf24'
+  ctx.fillText('💼 小心老板！撞到后进入会议室谈判', gameState.canvas.width / 2, 200)
 
   // 画几个预览的障碍物
   drawObstacle({ x: 70, y: gameState.groundY - 35, type: { name: '需求文档' } })
@@ -314,12 +338,26 @@ function runGameLoop() {
   }
 
   gameState.timer = setInterval(() => {
+    // 如果在老板会议室，只绘制会议室
+    if (gameState.bossStatus === 'meeting') {
+      drawBossMeeting()
+
+      // 检查超时
+      if (Date.now() - gameState.bossMeeting.startTime > 15000) {
+        // 超时默认选第一个选项
+        if (!gameState.bossMeeting.answered) {
+          answerBossQuestion(0)
+        }
+      }
+      return
+    }
+
     if (gameState.status !== 'playing') return
 
     updateGame()
 
     // 检查updateGame后是否还是playing状态，避免碰撞后覆盖结算界面
-    if (gameState.status === 'playing') {
+    if (gameState.status === 'playing' && gameState.bossStatus !== 'meeting') {
       drawGame()
 
       // 每秒分数+1
@@ -345,6 +383,31 @@ function runGameLoop() {
 // 游戏逻辑更新
 function updateGame() {
   const now = Date.now()
+
+  // 老板生成检查
+  const currentScore = Math.floor(gameState.score)
+  if (currentScore > 0 && currentScore % gameState.bossSpawnScore === 0 &&
+      currentScore !== gameState.lastBossSpawnScore && Math.random() < 0.3) {
+    spawnBoss()
+    gameState.lastBossSpawnScore = currentScore
+  }
+
+  // 更新老板位置
+  if (gameState.bossStatus === 'approaching' && gameState.boss) {
+    gameState.boss.x -= gameState.speed * 0.6
+    gameState.boss.y += gameState.boss.velY
+
+    // 检查是否出界
+    if (gameState.boss.x < -gameState.boss.width) {
+      gameState.bossStatus = 'none'
+      gameState.boss = null
+    }
+
+    // 检查碰撞
+    if (checkCollision(gameState.player, gameState.boss)) {
+      enterBossMeeting()
+    }
+  }
 
   // 玩家重力
   gameState.player.velY += gameState.gravity
@@ -478,6 +541,298 @@ function spawnObstacle() {
   }
 
   gameState.obstacles.push(obstacle)
+}
+
+// 生成老板
+function spawnBoss() {
+  if (gameState.bossStatus !== 'none') return
+
+  gameState.bossStatus = 'approaching'
+  gameState.boss = {
+    x: gameState.canvas.width,
+    y: -60, // 从顶部出现
+    width: 60,
+    height: 70,
+    velY: 0.5 // 缓慢下降
+  }
+
+  console.log('老板来啦！')
+}
+
+// 绘制老板
+function drawBoss() {
+  if (!gameState.boss) return
+
+  const ctx = gameState.ctx
+  const x = gameState.boss.x
+  const y = gameState.boss.y
+
+  // 老板形象
+  ctx.fillStyle = '#2d2d2d' // 深色头发
+  ctx.fillRect(x + 15, y + 5, 30, 10)
+  ctx.fillRect(x + 10, y + 10, 8, 6)
+  ctx.fillRect(x + 42, y + 10, 8, 6)
+
+  // 脸
+  ctx.fillStyle = '#ffdbac'
+  ctx.fillRect(x + 18, y + 15, 24, 20)
+
+  // 眼镜
+  ctx.fillStyle = '#1e40af'
+  ctx.fillRect(x + 20, y + 18, 8, 4)
+  ctx.fillRect(x + 32, y + 18, 8, 4)
+  ctx.fillRect(x + 29, y + 19, 2, 2)
+
+  // 大背头
+  ctx.fillStyle = '#1e293b'
+  ctx.fillRect(x + 15, y + 5, 30, 3)
+  ctx.fillRect(x + 22, y + 8, 16, 4)
+
+  // 领带
+  ctx.fillStyle = '#dc2626'
+  ctx.beginPath()
+  ctx.moveTo(x + 30, y + 35)
+  ctx.lineTo(x + 35, y + 55)
+  ctx.lineTo(x + 25, y + 55)
+  ctx.fill()
+
+  // 西装
+  ctx.fillStyle = '#1e293b'
+  ctx.fillRect(x + 10, y + 35, 40, 35)
+
+  // 举着的"加班"牌子
+  ctx.fillStyle = '#fbbf24'
+  ctx.fillRect(x + 2, y + 25, 20, 25)
+  ctx.fillStyle = '#92400e'
+  ctx.font = 'bold 10px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText('加班', x + 12, y + 40)
+
+  ctx.textAlign = 'left' // 重置对齐方式
+}
+
+// 老板关卡数据 - 谈判问题
+const bossQuestions = [
+  {
+    question: '老板：小李，今晚加个班？',
+    options: [
+      { text: '好的老板，没问题！', score: -20, effect: 'sad' },
+      { text: '老板，我身体不舒服...', score: 10, effect: 'excuse' },
+      { text: '老板，我得回去陪女朋友', score: 15, effect: 'excuse' },
+      { text: '老板，我已经连续加班3天了', score: 25, effect: 'reason' }
+    ],
+    bestAnswer: 3
+  },
+  {
+    question: '老板：这个需求今晚必须改好！',
+    options: [
+      { text: '收到，立刻修改！', score: -15, effect: 'work' },
+      { text: '老板，这个需求要改架构', score: 20, effect: 'reason' },
+      { text: '老板，我已经下班了', score: 10, effect: 'excuse' },
+      { text: '老板，明天早上交行不？', score: 25, effect: 'negotiate' }
+    ],
+    bestAnswer: 3
+  },
+  {
+    question: '老板：这个月业绩不好，要不要扣钱？',
+    options: [
+      { text: '应该扣的，我接受', score: -10, effect: 'sad' },
+      { text: '老板，我家房贷压力大', score: 20, effect: 'excuse' },
+      { text: '老板，市场环境不好啊', score: 15, effect: 'reason' },
+      { text: '老板，我们应该一起想办法', score: 30, effect: 'positive' }
+    ],
+    bestAnswer: 3
+  },
+  {
+    question: '老板：要不要考虑996？',
+    options: [
+      { text: '非常愿意！', score: -25, effect: 'sad' },
+      { text: '老板，身体是革命本钱', score: 20, effect: 'reason' },
+      { text: '老板，我家猫需要照顾', score: 15, effect: 'excuse' },
+      { text: '老板，我们可以提高效率', score: 35, effect: 'positive' }
+    ],
+    bestAnswer: 3
+  },
+  {
+    question: '老板：我们公司明年上市！',
+    options: [
+      { text: '太棒了！老板', score: -10, effect: 'cheer' },
+      { text: '老板，那我们的股票呢？', score: 25, effect: 'negotiate' },
+      { text: '老板，先涨工资吧', score: 20, effect: 'excuse' },
+      { text: '老板，我希望上市前能有假', score: 15, effect: 'excuse' }
+    ],
+    bestAnswer: 1
+  }
+]
+
+// 进入老板会议室
+function enterBossMeeting() {
+  gameState.bossStatus = 'meeting'
+  gameState.boss = null
+  gameState.status = 'paused'
+
+  // 随机选择一个问题
+  const questionIndex = Math.floor(Math.random() * bossQuestions.length)
+  gameState.bossMeeting = {
+    question: bossQuestions[questionIndex],
+    startTime: Date.now(),
+    selectedOption: null,
+    answered: false
+  }
+
+  drawBossMeeting()
+}
+
+// 绘制老板会议室
+function drawBossMeeting() {
+  if (!gameState.bossMeeting) return
+
+  const ctx = gameState.ctx
+  const question = gameState.bossMeeting.question
+
+  // 会议室背景
+  ctx.fillStyle = 'rgba(30, 41, 59, 0.95)'
+  ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
+
+  // 老板坐在对面
+  ctx.fillStyle = '#1e293b' // 桌子
+  ctx.fillRect(50, 350, 300, 10)
+
+  // 画对话框
+  ctx.fillStyle = '#f1f5f9'
+  ctx.fillRect(40, 50, 320, 250)
+  ctx.strokeStyle = '#475569'
+  ctx.lineWidth = 3
+  ctx.strokeRect(40, 50, 320, 250)
+
+  // 绘制问题
+  ctx.fillStyle = '#1e293b'
+  ctx.font = '14px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText('📋 会议室谈判', gameState.canvas.width / 2, 30)
+
+  ctx.textAlign = 'left'
+  ctx.fillStyle = '#0f172a'
+  ctx.font = '12px monospace'
+  ctx.fillText(question.question, 60, 90)
+
+  // 绘制选项
+  const optionY = 120
+  const optionHeight = 40
+  for (let i = 0; i < question.options.length; i++) {
+    const option = question.options[i]
+    const y = optionY + i * optionHeight
+
+    // 选项背景
+    ctx.fillStyle = gameState.bossMeeting.selectedOption === i ? '#3b82f6' : '#e2e8f0'
+    ctx.fillRect(60, y, 280, 32)
+
+    ctx.fillStyle = gameState.bossMeeting.selectedOption === i ? '#ffffff' : '#0f172a'
+    ctx.font = '11px monospace'
+    ctx.fillText(`(${i+1}) ${option.text}`, 70, y + 20)
+  }
+
+  // 提示信息
+  ctx.fillStyle = '#64748b'
+  ctx.font = '10px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText('按 1-4 键选择答案，或点击屏幕选择', gameState.canvas.width / 2, 330)
+  ctx.textAlign = 'left'
+
+  // 显示倒计时
+  const timeLeft = 15 - Math.floor((Date.now() - gameState.bossMeeting.startTime) / 1000)
+  ctx.fillStyle = timeLeft < 5 ? '#dc2626' : '#059669'
+  ctx.font = 'bold 16px monospace'
+  ctx.textAlign = 'right'
+  ctx.fillText(`⏱️ ${timeLeft}s`, gameState.canvas.width - 20, 360)
+  ctx.textAlign = 'left'
+}
+
+// 回答老板问题
+function answerBossQuestion(optionIndex) {
+  if (!gameState.bossMeeting || gameState.bossMeeting.answered) return
+
+  gameState.bossMeeting.selectedOption = optionIndex
+  gameState.bossMeeting.answered = true
+
+  const question = gameState.bossMeeting.question
+  const option = question.options[optionIndex]
+
+  // 计算奖励
+  const rewardSeconds = option.score
+  const currency = window.config ? window.config.currency || '¥' : '¥'
+
+  // 更新分数
+  gameState.score = Math.max(0, gameState.score + rewardSeconds)
+
+  // 显示结果
+  setTimeout(() => {
+    showMeetingResult(option, optionIndex === question.bestAnswer)
+  }, 1000)
+}
+
+// 显示谈判结果
+function showMeetingResult(option, isBest) {
+  const ctx = gameState.ctx
+
+  // 结果展示
+  ctx.clearRect(0, 0, gameState.canvas.width, gameState.canvas.height)
+
+  ctx.fillStyle = isBest ? 'rgba(21, 128, 61, 0.95)' : 'rgba(185, 28, 28, 0.95)'
+  ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 24px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText(isBest ? '✅ 谈判成功！' : '😅 谈判失败！', gameState.canvas.width / 2, 150)
+
+  const currency = window.config ? window.config.currency || '¥' : '¥'
+
+  // 显示获得的奖励
+  ctx.font = '16px monospace'
+  if (option.score > 0) {
+    ctx.fillText(`🎉 获得奖励：${currency}${calculateGameEarnings(option.score).toFixed(2)}`,
+                 gameState.canvas.width / 2, 200)
+  } else {
+    ctx.fillText(`💸 扣除：${currency}${Math.abs(calculateGameEarnings(option.score)).toFixed(2)}`,
+                 gameState.canvas.width / 2, 200)
+  }
+
+  // 显示效果说明
+  const effectText = {
+    'sad': '你看起来很疲惫...',
+    'excuse': '你的借口很真实！',
+    'reason': '有理有据，老板认可',
+    'negotiate': '谈判高手！',
+    'positive': '积极向上，老板喜欢',
+    'cheer': '盲目乐观...',
+    'work': '工作狂！',
+    'none': '没有反应'
+  }
+
+  ctx.font = '14px monospace'
+  ctx.fillText(`💬 ${effectText[option.effect] || '老板觉得你的回答很有意思！'}`,
+               gameState.canvas.width / 2, 240)
+
+  // 继续游戏按钮
+  ctx.fillStyle = '#3b82f6'
+  ctx.fillRect(120, 280, 160, 50)
+  ctx.strokeStyle = '#1e40af'
+  ctx.lineWidth = 2
+  ctx.strokeRect(120, 280, 160, 50)
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 14px monospace'
+  ctx.textAlign = 'center'
+  ctx.fillText('继续工作', gameState.canvas.width / 2, 312)
+
+  // 重新开始游戏
+  setTimeout(() => {
+    gameState.bossStatus = 'none'
+    gameState.bossMeeting = null
+    gameState.status = 'playing'
+    runGameLoop()
+  }, 2000)
 }
 
 // 生成道具
@@ -744,6 +1099,9 @@ function drawGame() {
   ctx.fillStyle = '#0f0'
   ctx.fillRect(0, gameState.groundY, gameState.canvas.width, 2)
 
+  // 绘制老板
+  drawBoss()
+
   // 背景网格（滚动效果）
   ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)'
   ctx.lineWidth = 1
@@ -814,6 +1172,15 @@ function drawGame() {
 
 // 键盘按下事件
 function handleKeyDown(e) {
+  // 老板关卡选项选择（1-4）
+  if (gameState.bossStatus === 'meeting') {
+    if (e.key >= '1' && e.key <= '4') {
+      e.preventDefault()
+      answerBossQuestion(parseInt(e.key) - 1)
+    }
+    return
+  }
+
   if (e.key === ' ') {
     e.preventDefault()
 
@@ -853,6 +1220,23 @@ function handleTouchStart(e) {
   e.preventDefault()
   touchState.isTouched = true
 
+  // 老板关卡触摸选择
+  if (gameState.bossStatus === 'meeting') {
+    const rect = gameState.canvas.getBoundingClientRect()
+    const touch = e.touches[0]
+    const x = touch.clientX - rect.left
+    const y = touch.clientY - rect.top
+
+    // 选项位置：y坐标在120-300范围内，每40像素一个选项
+    if (y >= 120 && y <= 300) {
+      const optionIndex = Math.floor((y - 120) / 40)
+      if (optionIndex >= 0 && optionIndex < 4) {
+        answerBossQuestion(optionIndex)
+      }
+    }
+    return
+  }
+
   switch(gameState.status) {
     case 'gameover':
       // 游戏结束状态，点击回到开始界面
@@ -877,6 +1261,49 @@ function handleTouchStart(e) {
 function handleTouchEnd(e) {
   e.preventDefault()
   touchState.isTouched = false
+  if (gameState.status === 'playing') {
+    jumpRelease()
+  }
+}
+
+// 鼠标点击事件
+function handleMouseClick(e) {
+  // 老板关卡鼠标点击选择
+  if (gameState.bossStatus === 'meeting') {
+    const rect = gameState.canvas.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+
+    // 选项位置：y坐标在120-300范围内，每40像素一个选项
+    if (y >= 120 && y <= 300 && x >= 60 && x <= 340) {
+      const optionIndex = Math.floor((y - 120) / 40)
+      if (optionIndex >= 0 && optionIndex < 4) {
+        answerBossQuestion(optionIndex)
+      }
+    }
+    return
+  }
+
+  // 其他状态的鼠标点击逻辑
+  switch(gameState.status) {
+    case 'gameover':
+      initCurrentGame()
+      break
+    case 'idle':
+      startGame()
+      break
+    case 'paused':
+      startGame()
+      break
+    case 'playing':
+      // 游戏中点击 = 跳跃
+      jump()
+      break
+  }
+}
+
+// 鼠标松开事件
+function handleMouseUp(e) {
   if (gameState.status === 'playing') {
     jumpRelease()
   }
