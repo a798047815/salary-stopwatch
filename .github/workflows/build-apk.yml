@@ -31,20 +31,14 @@ jobs:
       - name: 安装Cordova
         run: npm install -g cordova@13.0.0
 
-      - name: 进入Cordova项目
-        run: cd salary-stopwatch-app
-
-      - name: 安装依赖
+      - name: 安装依赖并构建
+        working-directory: ./salary-stopwatch-app
         run: |
-          cd salary-stopwatch-app
           npm install
+          cordova platform add android@15.0.0
           cordova plugin add cordova-plugin-broadcaster
           cordova plugin add ./cordova-plugin-widget
-
-      - name: 构建调试APK
-        run: |
-          cd salary-stopwatch-app
-          cordova build android --debug
+          cordova build android --debug -- --gradleArg=-PcdvMinSdkVersion=26
 
       - name: 生成版本号
         id: version
