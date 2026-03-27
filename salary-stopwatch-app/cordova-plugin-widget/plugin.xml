@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="cordova-plugin-salary-widget" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>SalaryWidget</name>
+    <description>赚钱秒表桌面小部件插件</description>
+    <license>MIT</license>
+    <keywords>cordova,widget,appwidget,salary</keywords>
+    <repo>https://github.com/a798047815/salary-stopwatch</repo>
+
+    <js-module name="SalaryWidget" src="www/salary-widget.js">
+        <clobbers target="cordova.plugins.salaryWidget" />
+    </js-module>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SalaryWidget">
+                <param name="android-package" value="com.salary.stopwatch.SalaryWidget" />
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/SalaryWidget.java" target-dir="src/com/salary/stopwatch" />
+        <source-file src="src/android/SalaryWidgetProvider.java" target-dir="src/com/salary/stopwatch" />
+        <source-file src="src/android/SalaryWidgetService.java" target-dir="src/com/salary/stopwatch" />
+
+        <resource-file src="src/android/res/xml/widget_info.xml" target="res/xml/widget_info.xml" />
+        <resource-file src="src/android/res/layout/widget_layout.xml" target="res/layout/widget_layout.xml" />
+        <resource-file src="src/android/res/drawable/widget_background.xml" target="res/drawable/widget_background.xml" />
+        <resource-file src="src/android/res/drawable/ic_play.xml" target="res/drawable/ic_play.xml" />
+        <resource-file src="src/android/res/drawable/ic_pause.xml" target="res/drawable/ic_pause.xml" />
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <receiver android:name="com.salary.stopwatch.SalaryWidgetProvider" android:exported="true">
+                <intent-filter>
+                    <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                    <action android:name="com.salary.stopwatch.ACTION_WIDGET_TOGGLE" />
+                    <action android:name="com.salary.stopwatch.ACTION_WIDGET_UPDATE" />
+                </intent-filter>
+                <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_info" />
+            </receiver>
+
+            <service android:name="com.salary.stopwatch.SalaryWidgetService" android:exported="false" />
+        </config-file>
+
+        <preference name="android-minSdkVersion" value="26" />
+    </platform>
+</plugin>
