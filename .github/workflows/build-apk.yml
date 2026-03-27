@@ -36,9 +36,7 @@ jobs:
         run: |
           npm install
           cordova platform add android@15.0.0
-          cordova plugin add cordova-plugin-broadcaster
-          cordova plugin add ./cordova-plugin-widget
-          cordova build android --debug -- --gradleArg=-PcdvMinSdkVersion=26
+          cordova build android --debug
 
       - name: 生成版本号
         id: version
