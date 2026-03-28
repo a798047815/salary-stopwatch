@@ -170,10 +170,7 @@ function startTimer() {
   state.isRunning = true
   document.getElementById('toggleBtn').textContent = '⏸ 暂停'
   document.getElementById('toggleBtn').className = 'toggle-btn stop'
-
-  // 更新小部件状态
-  updateDesktopWidget()
-
+  
   state.timer = setInterval(() => {
     updateEarnings()
   }, 100) // 每100毫秒更新一次，让数字跳动更流畅
@@ -189,9 +186,6 @@ function stopTimer() {
   state.isRunning = false
   document.getElementById('toggleBtn').textContent = '▶️ 开始赚钱'
   document.getElementById('toggleBtn').className = 'toggle-btn start'
-
-  // 更新小部件状态
-  updateDesktopWidget()
 }
 
 // 切换计时器
@@ -340,26 +334,6 @@ function updateUI() {
   document.getElementById('milestoneIcon').textContent = nextMilestone.icon
   document.getElementById('milestoneAmount').textContent = `${config.currency}${nextMilestone.amount}`
   document.getElementById('milestoneName').textContent = nextMilestone.name
-
-  // 更新桌面小部件
-  updateDesktopWidget()
-}
-
-// 更新桌面小部件
-function updateDesktopWidget() {
-  if (window.cordova && cordova.plugins && cordova.plugins.salaryWidget) {
-    const currentSalary = `${config.currency}${state.currentEarnings.toFixed(2)}`
-    const workHours = Math.floor(state.workedSeconds / 3600)
-    const workMins = Math.floor((state.workedSeconds % 3600) / 60)
-    const statusText = state.isRunning
-      ? `工作中 ${workHours}小时${workMins}分钟`
-      : `已暂停 ${workHours}小时${workMins}分钟`
-
-    cordova.plugins.salaryWidget.updateWidget(currentSalary, statusText, state.isRunning,
-      () => console.log('Widget updated successfully'),
-      (error) => console.log('Widget update failed:', error)
-    )
-  }
 }
 
 // 更新目标UI
@@ -846,30 +820,4 @@ init = function() {
 }
 
 // 初始化
-if (window.cordova) {
-  // Cordova环境，等待设备就绪
-  document.addEventListener('deviceready', () => {
-    init()
-
-    // 启用后台运行模式
-    if (window.cordova.plugins.backgroundMode) {
-      window.cordova.plugins.backgroundMode.enable()
-      window.cordova.plugins.backgroundMode.setDefaults({
-        title: '赚钱秒表运行中',
-        text: '实时计算您的工资收入',
-        icon: 'icon',
-        color: '#4CAF50'
-      })
-    }
-
-    // 监听小部件的切换计时广播
-    if (window.broadcaster) {
-      window.broadcaster.addEventListener('com.salary.stopwatch.TOGGLE_TIMER', (event) => {
-        toggleTimer() // 调用全局的切换计时函数
-      })
-    }
-  }, false)
-} else {
-  // 浏览器环境
-  window.onload = init
-}
+window.onload = init

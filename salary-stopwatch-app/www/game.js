@@ -1,3 +1,59 @@
+// 音效管理
+const gameSounds = {
+  enabled: true,
+  // 生成简单音效
+  play(type) {
+    if (!this.enabled) return
+
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+
+      switch(type) {
+        case 'score': // 得分音效
+          oscillator.type = 'sine'
+          oscillator.frequency.value = 800
+          gainNode.gain.value = 0.1
+          oscillator.start()
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1)
+          oscillator.stop(audioContext.currentTime + 0.1)
+          break
+        case 'gameOver': // 游戏结束音效
+          oscillator.type = 'sawtooth'
+          oscillator.frequency.value = 300
+          gainNode.gain.value = 0.1
+          oscillator.start()
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5)
+          oscillator.stop(audioContext.currentTime + 0.5)
+          break
+        case 'start': // 游戏开始音效
+          oscillator.type = 'sine'
+          oscillator.frequency.value = 500
+          gainNode.gain.value = 0.1
+          oscillator.start()
+          oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.2)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2)
+          oscillator.stop(audioContext.currentTime + 0.2)
+          break
+        case 'click': // 按钮点击音效
+          oscillator.type = 'square'
+          oscillator.frequency.value = 600
+          gainNode.gain.value = 0.05
+          oscillator.start()
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05)
+          oscillator.stop(audioContext.currentTime + 0.05)
+          break
+      }
+    } catch (e) {
+      // 忽略音频错误
+    }
+  }
+}
+
 // 游戏全局状态
 const gameState = {
   currentGame: 'snake',
@@ -84,7 +140,9 @@ function switchGame(gameName) {
 // 开始游戏
 function startGame() {
   if (gameState.isRunning && !gameState.isPaused) return
-  
+
+  gameSounds.play('start')
+
   if (gameState.isPaused) {
     gameState.isPaused = false
     updateGameStatus('游戏中')
@@ -93,16 +151,16 @@ function startGame() {
     runGameLoop()
     return
   }
-  
+
   gameState.isRunning = true
   gameState.isPaused = false
   gameState.score = 0
   updateScoreUI()
   updateGameStatus('游戏中')
-  
+
   document.getElementById('gameStartBtn').style.display = 'none'
   document.getElementById('gamePauseBtn').style.display = 'inline-block'
-  
+
   runGameLoop()
 }
 
@@ -146,17 +204,47 @@ function stopGame() {
 // 游戏结束
 function gameOver() {
   stopGame()
+  gameSounds.play('gameOver')
   updateGameStatus(`游戏结束！得分：${gameState.score}`)
-  
+
   // 保存最高记录
-  if (gameState.score > gameState.highScore) {
+  const isNewRecord = gameState.score > gameState.highScore
+  if (isNewRecord) {
     gameState.highScore = gameState.score
     localStorage.setItem('gameHighScore', gameState.highScore)
     updateHighScoreUI()
-    alert(`🎉 恭喜创造新记录！得分：${gameState.score}`)
-  } else {
-    alert(`游戏结束！得分：${gameState.score}`)
   }
+
+  // 显示结算界面
+  showGameOverModal(isNewRecord)
+}
+
+// 显示游戏结算界面
+function showGameOverModal(isNewRecord) {
+  const modal = document.getElementById('gameOverModal')
+  document.getElementById('finalScore').textContent = gameState.score
+  document.getElementById('finalHighScore').textContent = gameState.highScore
+
+  if (isNewRecord) {
+    document.getElementById('newRecordBadge').style.display = 'block'
+  } else {
+    document.getElementById('newRecordBadge').style.display = 'none'
+  }
+
+  modal.style.display = 'flex'
+}
+
+// 关闭结算界面
+function closeGameOverModal() {
+  const modal = document.getElementById('gameOverModal')
+  modal.style.display = 'none'
+}
+
+// 重新开始游戏
+function restartGame() {
+  closeGameOverModal()
+  initCurrentGame()
+  startGame()
 }
 
 // 游戏主循环
@@ -282,6 +370,7 @@ function updateSnake() {
   // 吃到食物
   if (head.x === gameState.food.x && head.y === gameState.food.y) {
     gameState.score += 10
+    gameSounds.play('score')
     updateScoreUI()
     generateFood()
     
@@ -381,6 +470,7 @@ function updatePlane() {
         gameState.bullets.splice(i, 1)
         gameState.enemies.splice(j, 1)
         gameState.score += 20
+        gameSounds.play('score')
         updateScoreUI()
         break
       }
@@ -680,3 +770,84 @@ function updateHighScoreUI() {
 function updateGameStatus(status) {
   document.getElementById('gameStatus').textContent = status
 }
+
+// 切换音效开关
+function toggleSound() {
+  gameSounds.enabled = !gameSounds.enabled
+  const btn = document.getElementById('soundToggleBtn')
+  if (gameSounds.enabled) {
+    btn.textContent = '🔊 音效开启'
+    gameSounds.play('click')
+  } else {
+    btn.textContent = '🔇 音效关闭'
+  }
+}
+
+// 处理触摸滑动
+let touchStartX = 0
+let touchStartY = 0
+
+function handleTouchStart(e) {
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+}
+
+function handleTouchEnd(e) {
+  if (!gameState.isRunning || gameState.isPaused) return
+
+  const touchEndX = e.changedTouches[0].clientX
+  const touchEndY = e.changedTouches[0].clientY
+
+  const deltaX = touchEndX - touchStartX
+  const deltaY = touchEndY - touchStartY
+
+  // 判断滑动方向
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // 水平滑动
+    if (deltaX > 20) {
+      // 右滑
+      if (gameState.currentGame === 'snake' && gameState.direction !== 'left') {
+        gameState.direction = 'right'
+      } else if (gameState.currentGame === 'plane') {
+        gameState.plane.x = Math.min(360, gameState.plane.x + 20)
+      } else if (gameState.currentGame === 'tetris') {
+        if (typeof moveTetrisPiece === 'function') moveTetrisPiece(1, 0)
+      }
+    } else if (deltaX < -20) {
+      // 左滑
+      if (gameState.currentGame === 'snake' && gameState.direction !== 'right') {
+        gameState.direction = 'left'
+      } else if (gameState.currentGame === 'plane') {
+        gameState.plane.x = Math.max(0, gameState.plane.x - 20)
+      } else if (gameState.currentGame === 'tetris') {
+        if (typeof moveTetrisPiece === 'function') moveTetrisPiece(-1, 0)
+      }
+    }
+  } else {
+    // 垂直滑动
+    if (deltaY > 20) {
+      // 下滑
+      if (gameState.currentGame === 'snake' && gameState.direction !== 'up') {
+        gameState.direction = 'down'
+      } else if (gameState.currentGame === 'tetris') {
+        if (typeof moveTetrisPiece === 'function') moveTetrisPiece(0, 1)
+      }
+    } else if (deltaY < -20) {
+      // 上滑
+      if (gameState.currentGame === 'snake' && gameState.direction !== 'down') {
+        gameState.direction = 'up'
+      } else if (gameState.currentGame === 'tetris') {
+        if (typeof rotateTetrisPiece === 'function') rotateTetrisPiece()
+      }
+    }
+  }
+}
+
+// 页面加载完成初始化触摸事件
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('gameCanvas')
+  if (canvas) {
+    canvas.addEventListener('touchstart', handleTouchStart, false)
+    canvas.addEventListener('touchend', handleTouchEnd, false)
+  }
+})
