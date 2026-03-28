@@ -10,7 +10,7 @@
     <content src="index.html" />
 
     <!-- 基础配置 -->
-    <preference name="Fullscreen" value="true" />
+    <preference name="Fullscreen" value="false" />
     <preference name="Orientation" value="portrait" />
     <preference name="BackgroundColor" value="#1a1a2e" />
     <preference name="DisallowOverscroll" value="true" />
