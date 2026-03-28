@@ -449,12 +449,26 @@
       <button class="game-btn" data-game="tetris" onclick="switchGame('tetris')">🧱 俄罗斯方块</button>
     </div>
 
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
-    
+    <div style="position: relative; display: inline-block;">
+      <canvas id="gameCanvas" width="400" height="500"></canvas>
+      <!-- 游戏结算界面 -->
+      <div id="gameOverModal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); border-radius: 8px; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 100;">
+        <h2 style="color: #FFD700; margin-bottom: 20px; font-size: 28px;">游戏结束</h2>
+        <div style="font-size: 20px; margin-bottom: 10px;">本次得分：<span id="finalScore" style="color: #4CAF50; font-weight: bold;">0</span></div>
+        <div style="font-size: 18px; margin-bottom: 5px;">最高记录：<span id="finalHighScore" style="color: #FF9800; font-weight: bold;">0</span></div>
+        <div id="newRecordBadge" style="display: none; color: #FF4444; font-size: 16px; margin: 15px 0; font-weight: bold;">🎉 恭喜创造新记录！</div>
+        <div style="margin-top: 25px; display: flex; gap: 15px;">
+          <button onclick="restartGame()" style="padding: 10px 20px; background: #4CAF50; border: none; border-radius: 6px; color: white; font-size: 16px; cursor: pointer;">再来一局</button>
+          <button onclick="closeGameOverModal()" style="padding: 10px 20px; background: #666; border: none; border-radius: 6px; color: white; font-size: 16px; cursor: pointer;">返回</button>
+        </div>
+      </div>
+    </div>
+
     <div class="game-info">
       <div>得分: <span id="gameScore">0</span></div>
       <div>最高记录: <span id="gameHighScore">0</span></div>
       <div>状态: <span id="gameStatus">准备开始</span></div>
+      <button id="soundToggleBtn" onclick="toggleSound()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; margin-top: 5px;">🔊 音效开启</button>
     </div>
 
     <div class="controls">
