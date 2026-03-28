@@ -437,10 +437,14 @@ body {
   color: #999999;
   font-size: 12px;
   cursor: pointer;
+  border-radius: 12px;
+  margin: 0 5px;
+  transition: all 0.2s ease;
 }
 
 .nav-item.active {
-  color: #111111;
+  background: #111111 !important;
+  color: #ffffff;
 }
 
 .nav-icon {
