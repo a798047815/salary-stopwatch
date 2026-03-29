@@ -33,14 +33,24 @@ jobs:
       - name: 安装Cordova
         run: npm install -g cordova@13.0.0
 
+      - name: 强制复制最新前端文件
+        run: |
+          # 完全覆盖www目录，确保用最新代码
+          rm -rf ./salary-stopwatch-app/www/
+          mkdir -p ./salary-stopwatch-app/www/
+          cp ./game.js ./index.html ./app.js ./style.css ./salary-stopwatch-app/www/
+          ls -la ./salary-stopwatch-app/www/
+
       - name: 安装依赖并构建
         working-directory: ./salary-stopwatch-app
         run: |
           npm install
-          cordova platform add android@15.0.0
-          cordova plugin add cordova-plugin-broadcaster
-          cordova plugin add ./cordova-plugin-widget
-          cordova build android --debug -- --gradleArg=-PcdvMinSdkVersion=26
+          cordova platform rm android || true
+          cordova platform add android@15.0.0 --nocache
+          cordova plugin rm cordova-plugin-salary-widget || true
+          cordova plugin add cordova-plugin-broadcaster --nocache
+          cordova plugin add ./cordova-plugin-widget --nocache
+          cordova build android --debug --release -- --gradleArg=-PcdvMinSdkVersion=26 --no-build-cache
 
       - name: 生成版本号
         id: version
