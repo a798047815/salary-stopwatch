@@ -55,7 +55,7 @@ jobs:
       - name: 生成版本号
         id: version
         run: |
-          echo "version=$(date +'%Y%m%d%H%M')" >> $GITHUB_OUTPUT
+          echo "version=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: 上传APK到Release
         uses: softprops/action-gh-release@v1
