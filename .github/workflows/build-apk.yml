@@ -50,7 +50,7 @@ jobs:
           cordova plugin rm cordova-plugin-salary-widget || true
           cordova plugin add cordova-plugin-broadcaster --nocache
           cordova plugin add ./cordova-plugin-widget --nocache
-          cordova build android --debug --release -- --gradleArg=-PcdvMinSdkVersion=26 --no-build-cache
+          cordova build android --debug -- --gradleArg=-PcdvMinSdkVersion=26 --no-build-cache
 
       - name: 生成版本号
         id: version
