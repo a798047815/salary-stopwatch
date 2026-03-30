@@ -329,26 +329,6 @@ function toggleTimer() {
   }
 }
 
-// 更新收入
-const originalUpdateEarnings = updateEarnings;
-function updateEarnings() {
-  const now = new Date()
-
-  // 检查是否是周末或节假日
-  if (isWeekend(now) || isHoliday(now)) {
-    // 停止计时器
-    if (state.isRunning) {
-      stopTimer()
-    }
-    // 显示节假日信息
-    updateHolidayUI()
-    return
-  }
-
-  // 正常工作时间计算
-  return originalUpdateEarnings.apply(this, arguments)
-}
-
 // ==================== 原updateEarnings函数 ====================
 function originalUpdateEarnings() {
   const now = new Date()
@@ -486,6 +466,25 @@ function updateUI() {
   document.getElementById('milestoneIcon').textContent = nextMilestone.icon
   document.getElementById('milestoneAmount').textContent = `${config.currency}${nextMilestone.amount}`
   document.getElementById('milestoneName').textContent = nextMilestone.name
+}
+
+// 更新收入 - 带节假日检测
+function updateEarnings() {
+  const now = new Date()
+
+  // 检查是否是周末或节假日
+  if (isWeekend(now) || isHoliday(now)) {
+    // 停止计时器
+    if (state.isRunning) {
+      stopTimer()
+    }
+    // 显示节假日信息
+    updateHolidayUI()
+    return
+  }
+
+  // 正常工作时间计算
+  return originalUpdateEarnings.apply(this, arguments)
 }
 
 // 更新目标UI
@@ -1010,9 +1009,8 @@ function playNotificationSound() {
 }
 
 // 在原有init函数末尾加入健康提醒初始化
-const originalInit = init
-init = function() {
-  originalInit()
+function initializeApp() {
+  init()
   initHealthReminders()
 }
 
@@ -1030,4 +1028,4 @@ if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
 }
 
 // 初始化
-window.onload = init
+window.onload = initializeApp
