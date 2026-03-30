@@ -108,7 +108,10 @@ const gameState = {
   itemTypes: [
     { emoji: '☕', name: '咖啡', width: 25, height: 30, effect: 'earn+10' }, // 额外赚10块
     { emoji: '🍗', name: '鸡腿', width: 30, height: 30, effect: 'invincible' }, // 无敌
-    { emoji: '💰', name: '奖金', width: 30, height: 30, effect: 'earn+50' } // 额外赚50块
+    { emoji: '💰', name: '奖金', width: 30, height: 30, effect: 'earn+50' }, // 额外赚50块
+    { emoji: '💎', name: '双倍金币', width: 30, height: 30, effect: 'double_earn' }, // 10秒双倍收益
+    { emoji: '🧲', name: '磁铁', width: 30, height: 30, effect: 'magnet' }, // 10秒自动吸道具
+    { emoji: '⏩', name: '慢动作', width: 30, height: 30, effect: 'slow_motion' } // 10秒游戏减速
   ],
 
   // 特效
@@ -126,7 +129,26 @@ const gameState = {
 
   // 统计数据
   obstaclesJumped: 0,
-  itemsCollected: 0
+  itemsCollected: 0,
+  totalJumps: 0,
+
+  // 二段跳
+  maxDoubleJumps: 1,
+  doubleJumpUsed: 0,
+
+  // 道具效果
+  doubleEarnings: false,
+  doubleEarningsTime: 0,
+  magnetActive: false,
+  magnetRange: 60,
+  speedBoost: 0,
+
+  // 历史记录
+  historyRecords: JSON.parse(localStorage.getItem('gameHistory') || '[]'),
+
+  // 成就系统
+  achievements: JSON.parse(localStorage.getItem('gameAchievements') || '[]'),
+  currentRunAchievements: []
 }
 
 // 触摸状态
@@ -185,8 +207,17 @@ function initCurrentGame() {
   gameState.backgroundOffset = 0
   gameState.obstaclesJumped = 0
   gameState.itemsCollected = 0
+  gameState.totalJumps = 0
   gameState.isJumpingPressed = false
   gameState.jumpHoldTime = 0
+  gameState.doubleJumpUsed = 0
+  gameState.doubleEarnings = false
+  gameState.doubleEarningsTime = 0
+  gameState.magnetActive = false
+  gameState.magnetTime = 0
+  gameState.slowMotionTime = 0
+  gameState.speedBoost = 0
+  gameState.currentRunAchievements = []
   particles.length = 0 // 清空粒子
 
   // 绘制初始画面
@@ -358,12 +389,78 @@ function gameOver() {
   ctx.fillText(`收集道具: ${gameState.itemsCollected} 个`, gameState.canvas.width / 2, 265)
   ctx.fillText(`游戏时长: ${Math.floor(gameState.score)} 秒`, gameState.canvas.width / 2, 290)
 
+  // 显示本次获得的成就
+  if (gameState.currentRunAchievements.length > 0) {
+    ctx.fillStyle = '#10b981'
+    ctx.font = '14px monospace'
+    ctx.fillText(`🏆 新成就: ${gameState.currentRunAchievements.join(', ')}`, gameState.canvas.width / 2, 320)
+  }
+
+  // 显示历史最高
+  if (gameState.historyRecords.length > 0) {
+    const highest = Math.max(...gameState.historyRecords.map(r => r.score))
+    const highestEarnings = calculateGameEarnings(highest)
+    const currency = window.config ? window.config.currency || '¥' : '¥'
+    ctx.fillStyle = '#666'
+    ctx.font = '12px monospace'
+    ctx.fillText(`历史最高: ${currency}${highestEarnings.toFixed(2)}`, gameState.canvas.width / 2, 350)
+  }
+
   ctx.fillStyle = '#111'
   ctx.font = '14px monospace'
-  ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 330)
+  ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 380)
   ctx.textAlign = 'left'
 
+  // 保存到历史记录
+  saveHistoryRecord(gameState.score)
+
+  // 检查成就
+  checkAchievements()
+
   // 不需要自动重置，等待用户手动点击
+}
+
+// 添加成就
+function addAchievement(title) {
+  if (!gameState.currentRunAchievements.includes(title)) {
+    gameState.currentRunAchievements.push(title)
+
+    // 保存到永久成就
+    if (!gameState.achievements.includes(title)) {
+      gameState.achievements.push(title)
+      localStorage.setItem('gameAchievements', JSON.stringify(gameState.achievements))
+    }
+  }
+}
+
+// 检查成就
+function checkAchievements() {
+  if (gameState.score >= 60) addAchievement('工作满1分钟')
+  if (gameState.score >= 300) addAchievement('工作满5分钟')
+  if (gameState.score >= 600) addAchievement('工作满10分钟')
+  if (gameState.obstaclesJumped >= 50) addAchievement('跳过50个障碍')
+  if (gameState.obstaclesJumped >= 100) addAchievement('跳过100个障碍')
+  if (gameState.itemsCollected >= 10) addAchievement('收集10个道具')
+  if (gameState.itemsCollected >= 30) addAchievement('收集30个道具')
+  if (gameState.totalJumps >= 100) addAchievement('跳跃100次')
+  if (gameState.doubleJumpUsed >= 10) addAchievement('二段跳10次')
+}
+
+// 保存历史记录
+function saveHistoryRecord(score) {
+  const record = {
+    score: score,
+    date: new Date().toLocaleString(),
+    earnings: calculateGameEarnings(score)
+  }
+
+  gameState.historyRecords.unshift(record)
+  // 只保留最近10条记录
+  if (gameState.historyRecords.length > 10) {
+    gameState.historyRecords = gameState.historyRecords.slice(0, 10)
+  }
+
+  localStorage.setItem('gameHistory', JSON.stringify(gameState.historyRecords))
 }
 
 // 显示游戏结算界面
@@ -424,9 +521,33 @@ function runGameLoop() {
 
       // 无敌时间倒计时
       if (gameState.invincible) {
-        gameState.invincibleTime -= 16.67 // 16.67ms per frame
+        gameState.invincibleTime -= 16.67
         if (gameState.invincibleTime <= 0) {
           gameState.invincible = false
+        }
+      }
+
+      // 双倍收益倒计时
+      if (gameState.doubleEarnings) {
+        gameState.doubleEarningsTime -= 16.67
+        if (gameState.doubleEarningsTime <= 0) {
+          gameState.doubleEarnings = false
+        }
+      }
+
+      // 磁铁倒计时
+      if (gameState.magnetActive) {
+        gameState.magnetTime -= 16.67
+        if (gameState.magnetTime <= 0) {
+          gameState.magnetActive = false
+        }
+      }
+
+      // 慢动作倒计时
+      if (gameState.slowMotionTime > 0) {
+        gameState.slowMotionTime -= 16.67
+        if (gameState.slowMotionTime <= 0) {
+          gameState.speed *= 2 // 恢复正常速度
         }
       }
     }
@@ -504,7 +625,23 @@ function updateGame() {
 
   // 更新道具位置
   gameState.items = gameState.items.filter(item => {
-    item.x -= gameState.speed
+    // 磁铁效果：吸引附近的道具
+    if (gameState.magnetActive) {
+      const dx = (gameState.player.x + 15) - (item.x + item.width/2)
+      const dy = (gameState.player.y + 20) - (item.y + item.height/2)
+      const distance = Math.sqrt(dx*dx + dy*dy)
+
+      if (distance < gameState.magnetRange) {
+        // 道具向玩家移动
+        const speed = 3
+        item.x += dx / distance * speed
+        item.y += dy / distance * speed
+      } else {
+        item.x -= gameState.speed
+      }
+    } else {
+      item.x -= gameState.speed
+    }
     return item.x > -item.width
   })
 
@@ -600,17 +737,35 @@ function applyItemEffect(item) {
       const dailySalary = window.config ? window.config.dailySalary || 300 : 300
       const workHoursPerDay = 8
       const secondsPerYuan = (workHoursPerDay * 3600) / dailySalary
-      gameState.score += 10 * secondsPerYuan
+      const addAmount = gameState.doubleEarnings ? 20 : 10
+      gameState.score += addAmount * secondsPerYuan
       break
     case 'earn+50':
       const dailySalary2 = window.config ? window.config.dailySalary || 300 : 300
       const workHoursPerDay2 = 8
       const secondsPerYuan2 = (workHoursPerDay2 * 3600) / dailySalary2
-      gameState.score += 50 * secondsPerYuan2
+      const addAmount2 = gameState.doubleEarnings ? 100 : 50
+      gameState.score += addAmount2 * secondsPerYuan2
       break
     case 'invincible':
       gameState.invincible = true
       gameState.invincibleTime = 5000 // 5秒无敌
+      addAchievement('获得无敌道具')
+      break
+    case 'double_earn':
+      gameState.doubleEarnings = true
+      gameState.doubleEarningsTime = 10000 // 10秒双倍收益
+      addAchievement('获得双倍金币')
+      break
+    case 'magnet':
+      gameState.magnetActive = true
+      gameState.magnetTime = 10000 // 10秒磁铁效果
+      addAchievement('获得磁铁道具')
+      break
+    case 'slow_motion':
+      gameState.speed *= 0.5
+      gameState.slowMotionTime = 10000 // 10秒慢动作
+      addAchievement('获得慢动作道具')
       break
   }
   updateScoreUI()
@@ -626,11 +781,14 @@ function checkCollision(a, b) {
 
 // 跳跃
 function jump() {
-  if (!gameState.player.isJumping && gameState.player.y === gameState.groundY - gameState.player.height) {
+  // 地面跳跃
+  if (gameState.player.y === gameState.groundY - gameState.player.height) {
     gameState.player.velY = gameState.jumpForce
     gameState.player.isJumping = true
     gameState.isJumpingPressed = true
     gameState.jumpHoldTime = 0
+    gameState.doubleJumpUsed = 0
+    gameState.totalJumps++
 
     // 跳跃灰尘特效
     for (let i = 0; i < 5; i++) {
@@ -642,6 +800,27 @@ function jump() {
         life: 20,
         maxLife: 20,
         color: '#666'
+      })
+    }
+  }
+  // 二段跳
+  else if (gameState.doubleJumpUsed < gameState.maxDoubleJumps && gameState.player.velY > -5) {
+    gameState.player.velY = gameState.jumpForce * 0.9
+    gameState.doubleJumpUsed++
+    gameState.isJumpingPressed = true
+    gameState.jumpHoldTime = 0
+    gameState.totalJumps++
+
+    // 二段跳特效
+    for (let i = 0; i < 8; i++) {
+      particles.push({
+        x: gameState.player.x + 15,
+        y: gameState.player.y + 20,
+        velX: (Math.random() - 0.5) * 6,
+        velY: Math.random() * 2,
+        life: 25,
+        maxLife: 25,
+        color: '#3b82f6'
       })
     }
   }
@@ -763,11 +942,31 @@ function drawGame() {
   // 画玩家
   drawPlayer(gameState.player.x, gameState.player.y, gameState.invincible)
 
-  // 画无敌时间提示
+  // 画状态提示
+  let statusY = 30
   if (gameState.invincible) {
     ctx.fillStyle = '#fbbf24'
     ctx.font = '14px monospace'
-    ctx.fillText(`✨ 无敌：${Math.ceil(gameState.invincibleTime / 1000)}s`, 10, 30)
+    ctx.fillText(`✨ 无敌：${Math.ceil(gameState.invincibleTime / 1000)}s`, 10, statusY)
+    statusY += 20
+  }
+  if (gameState.doubleEarnings) {
+    ctx.fillStyle = '#f59e0b'
+    ctx.font = '14px monospace'
+    ctx.fillText(`💎 双倍：${Math.ceil(gameState.doubleEarningsTime / 1000)}s`, 10, statusY)
+    statusY += 20
+  }
+  if (gameState.magnetActive) {
+    ctx.fillStyle = '#8b5cf6'
+    ctx.font = '14px monospace'
+    ctx.fillText(`🧲 磁铁：${Math.ceil(gameState.magnetTime / 1000)}s`, 10, statusY)
+    statusY += 20
+  }
+  if (gameState.slowMotionTime > 0) {
+    ctx.fillStyle = '#3b82f6'
+    ctx.font = '14px monospace'
+    ctx.fillText(`⏩ 慢动作：${Math.ceil(gameState.slowMotionTime / 1000)}s`, 10, statusY)
+    statusY += 20
   }
 
   // 画工资进度条
