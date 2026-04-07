@@ -233,7 +233,7 @@ function drawStartScreen() {
   ctx.clearRect(0, 0, gameState.canvas.width, gameState.canvas.height)
 
   // 画地面
-  ctx.fillStyle = '#333'
+  ctx.fillStyle = '#111'
   ctx.fillRect(0, gameState.groundY, gameState.canvas.width, 2)
 
   // 背景网格
@@ -373,17 +373,17 @@ function gameOver() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'
   ctx.fillRect(0, 0, gameState.canvas.width, gameState.canvas.height)
 
-  ctx.fillStyle = '#ff4444'
+  ctx.fillStyle = '#111'
   ctx.font = 'bold 28px monospace'
   ctx.textAlign = 'center'
   ctx.fillText('GAME OVER', gameState.canvas.width / 2, 150)
 
-  ctx.fillStyle = '#111'
+  ctx.fillStyle = '#333'
   ctx.font = '16px monospace'
   ctx.fillText(message, gameState.canvas.width / 2, 200)
 
   // 详细统计
-  ctx.fillStyle = '#333'
+  ctx.fillStyle = '#555'
   ctx.font = '14px monospace'
   ctx.fillText(`跳过障碍: ${gameState.obstaclesJumped} 个`, gameState.canvas.width / 2, 240)
   ctx.fillText(`收集道具: ${gameState.itemsCollected} 个`, gameState.canvas.width / 2, 265)
@@ -391,7 +391,7 @@ function gameOver() {
 
   // 显示本次获得的成就
   if (gameState.currentRunAchievements.length > 0) {
-    ctx.fillStyle = '#10b981'
+    ctx.fillStyle = '#111'
     ctx.font = '14px monospace'
     ctx.fillText(`🏆 新成就: ${gameState.currentRunAchievements.join(', ')}`, gameState.canvas.width / 2, 320)
   }
@@ -406,7 +406,7 @@ function gameOver() {
     ctx.fillText(`历史最高: ${currency}${highestEarnings.toFixed(2)}`, gameState.canvas.width / 2, 350)
   }
 
-  ctx.fillStyle = '#111'
+  ctx.fillStyle = '#333'
   ctx.font = '14px monospace'
   ctx.fillText('点击屏幕或按空格回到开始界面', gameState.canvas.width / 2, 380)
   ctx.textAlign = 'left'
@@ -945,25 +945,25 @@ function drawGame() {
   // 画状态提示
   let statusY = 30
   if (gameState.invincible) {
-    ctx.fillStyle = '#fbbf24'
+    ctx.fillStyle = '#111'
     ctx.font = '14px monospace'
     ctx.fillText(`✨ 无敌：${Math.ceil(gameState.invincibleTime / 1000)}s`, 10, statusY)
     statusY += 20
   }
   if (gameState.doubleEarnings) {
-    ctx.fillStyle = '#f59e0b'
+    ctx.fillStyle = '#111'
     ctx.font = '14px monospace'
     ctx.fillText(`💎 双倍：${Math.ceil(gameState.doubleEarningsTime / 1000)}s`, 10, statusY)
     statusY += 20
   }
   if (gameState.magnetActive) {
-    ctx.fillStyle = '#8b5cf6'
+    ctx.fillStyle = '#111'
     ctx.font = '14px monospace'
     ctx.fillText(`🧲 磁铁：${Math.ceil(gameState.magnetTime / 1000)}s`, 10, statusY)
     statusY += 20
   }
   if (gameState.slowMotionTime > 0) {
-    ctx.fillStyle = '#3b82f6'
+    ctx.fillStyle = '#111'
     ctx.font = '14px monospace'
     ctx.fillText(`⏩ 慢动作：${Math.ceil(gameState.slowMotionTime / 1000)}s`, 10, statusY)
     statusY += 20
@@ -974,19 +974,19 @@ function drawGame() {
   const currentEarnings = calculateGameEarnings(gameState.score)
   const progressPercent = Math.min(100, (currentEarnings / dailySalary) * 100)
 
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
   ctx.fillRect(10, 40, gameState.canvas.width - 20, 8)
   ctx.fillStyle = '#111'
   ctx.fillRect(10, 40, (gameState.canvas.width - 20) * (progressPercent / 100), 8)
 
-  ctx.fillStyle = '#111'
+  ctx.fillStyle = '#333'
   ctx.font = '12px monospace'
   ctx.textAlign = 'center'
   ctx.fillText(`今日工资进度：${progressPercent.toFixed(1)}%`, gameState.canvas.width / 2, 65)
   ctx.textAlign = 'left'
 
   // 画速度提示
-  ctx.fillStyle = '#111'
+  ctx.fillStyle = '#333'
   ctx.font = '14px monospace'
   ctx.textAlign = 'right'
   ctx.fillText(`⚡ 速度：${gameState.speed.toFixed(1)}x`, gameState.canvas.width - 10, 30)

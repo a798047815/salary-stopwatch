@@ -1,3 +1,42 @@
+// 全局音效管理器
+const appSounds = {
+  enabled: true,
+  play(type) {
+    if (!this.enabled) return
+
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+
+      switch(type) {
+        case 'click': // 点击音效
+          oscillator.type = 'sine'
+          oscillator.frequency.value = 500
+          gainNode.gain.value = 0.05
+          oscillator.start()
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08)
+          oscillator.stop(audioContext.currentTime + 0.08)
+          break
+        case 'success': // 成功音效
+          oscillator.type = 'sine'
+          oscillator.frequency.value = 800
+          gainNode.gain.value = 0.08
+          oscillator.start()
+          oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.15)
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15)
+          oscillator.stop(audioContext.currentTime + 0.15)
+          break
+      }
+    } catch (e) {
+      // 忽略音频错误
+    }
+  }
+}
+
 // 全局配置
 let config = {
   dailySalary: 300,
@@ -42,6 +81,9 @@ let state = {
 // 页面切换功能 - 修复版
 function switchPage(pageName) {
   if (state.currentPage === pageName) return
+
+  // 播放点击音效
+  appSounds.play('click')
 
   // 隐藏所有页面
   document.querySelectorAll('.page').forEach(page => {
@@ -173,7 +215,8 @@ function calculateEarningsPerSecond() {
 // 启动计时器
 function startTimer() {
   if (state.timer) return
-  
+
+  appSounds.play('click')
   state.isRunning = true
   document.getElementById('toggleBtn').textContent = '⏸ 暂停'
   document.getElementById('toggleBtn').className = 'toggle-btn stop'
@@ -185,11 +228,13 @@ function startTimer() {
 
 // 停止计时器
 function stopTimer() {
+  appSounds.play('click')
+
   if (state.timer) {
     clearInterval(state.timer)
     state.timer = null
   }
-  
+
   state.isRunning = false
   document.getElementById('toggleBtn').textContent = '▶️ 开始赚钱'
   document.getElementById('toggleBtn').className = 'toggle-btn start'
@@ -508,6 +553,8 @@ document.addEventListener('click', (e) => {
 
 // 保存设置
 function saveSettings() {
+  appSounds.play('success')
+
   config.dailySalary = parseFloat(document.getElementById('dailySalary').value) || 0
   config.workStartTime = document.getElementById('workStartTime').value
   config.workEndTime = document.getElementById('workEndTime').value
